@@ -9,9 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@mediapipe/face_detection": "^0.4.1646425229",
+    "@tensorflow-models/face-detection": "^1.0.3",
+    "axios": "^1.13.5",
+    "dotenv": "^17.2.4",
+    "face-api.js": "^0.22.2",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-icons": "^5.5.0",
+    "react-speech-recognition": "^4.0.1",
+    "regenerator-runtime": "^0.14.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
