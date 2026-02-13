@@ -10,7 +10,7 @@ import { BsLightningCharge, BsShieldCheck } from "react-icons/bs";
 import { MdOutlineWorkOutline } from "react-icons/md";
 import axios from "axios";
 
-const JobDescription = ({ setStepCount }) => {
+const JobDescription = ({ setStepCount, questionIdSetKar }) => {
   const [formData, setFormData] = useState({
     technology: "",
     experience: "",
@@ -95,6 +95,7 @@ const JobDescription = ({ setStepCount }) => {
       if (response.data.success) {
         alert(response.data.message);
         setStepCount(2);
+        questionIdSetKar(response.data.data._id);
       }
     } catch (error) {
       console.log("error while submit the data", error);

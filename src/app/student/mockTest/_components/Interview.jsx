@@ -8,8 +8,9 @@ import { IoMdMic } from "react-icons/io";
 import { BsMicMuteFill, BsCameraVideoFill } from "react-icons/bs";
 import { AiOutlineWarning } from "react-icons/ai";
 import { FaRegSmile, FaRegFrown } from "react-icons/fa";
+import axios from "axios";
 
-const Interview = ({ setStepCount }) => {
+const Interview = ({ setStepCount, questionIdMilGaya }) => {
   const [count, setCount] = useState(0);
   const [isFaceInFrame, setIsFaceInFrame] = useState(true);
   const [faceWarning, setFaceWarning] = useState(false);
@@ -24,14 +25,33 @@ const Interview = ({ setStepCount }) => {
   const animationFrameRef = useRef(null);
   const timerIntervalRef = useRef(null);
 
-  const questions = [
-    { question: "What is React and its core principles?" },
-    { question: "Explain React hooks and their common use cases" },
-    { question: "What is state management in React?" },
-    { question: "How does React Router work?" },
-    { question: "Explain Virtual DOM and its benefits" },
-    { question: "What is JSX and how does it differ from HTML?" },
-  ];
+  const [questionData, setQuestionData] = useState([]);
+
+  // const questions = [
+  //   { question: "What is React and its core principles?" },
+  //   { question: "Explain React hooks and their common use cases" },
+  //   { question: "What is state management in React?" },
+  //   { question: "How does React Router work?" },
+  //   { question: "Explain Virtual DOM and its benefits" },
+  //   { question: "What is JSX and how does it differ from HTML?" },
+  // ];
+
+  useEffect(() => {
+    const getQuestions = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/getQuestions/${questionIdMilGaya}`,
+        );
+        if (response.data.success) {
+          console.log(response.data.data);
+          setQuestionData(response.data.data.questions);
+        }
+      } catch (error) {
+        console.log("error while fetching the questions", error);
+      }
+    };
+    getQuestions();
+  }, [questionIdMilGaya]);
 
   const {
     transcript,
@@ -240,7 +260,7 @@ const Interview = ({ setStepCount }) => {
   };
 
   const handleNextQuestion = () => {
-    if (count < questions.length - 1) {
+    if (count < questionData.length - 1) {
       setCount(count + 1);
       resetTranscript();
       stopRecording();
@@ -313,7 +333,7 @@ const Interview = ({ setStepCount }) => {
                   <div>
                     <span className="text-sm text-gray-500">Question</span>
                     <p className="font-medium">
-                      {count + 1} of {questions.length}
+                      {count + 1} of {questionData.length}
                     </p>
                   </div>
                 </div>
@@ -324,7 +344,9 @@ const Interview = ({ setStepCount }) => {
 
               <div className="mt-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">
-                  {questions[count].question}
+                  {questionData.length > 0
+                    ? questionData[count].question
+                    : "Loading question..."}
                 </h2>
                 <p className="text-gray-600">
                   Please provide a clear and concise answer. Speak naturally as
@@ -338,14 +360,14 @@ const Interview = ({ setStepCount }) => {
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
                   <span>Progress</span>
                   <span>
-                    {Math.round(((count + 1) / questions.length) * 100)}%
+                    {Math.round(((count + 1) / questionData.length) * 100)}%
                   </span>
                 </div>
                 <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-blue-600 rounded-full transition-all duration-300"
                     style={{
-                      width: `${((count + 1) / questions.length) * 100}%`,
+                      width: `${((count + 1) / questionData.length) * 100}%`,
                     }}
                   />
                 </div>
@@ -419,9 +441,9 @@ const Interview = ({ setStepCount }) => {
 
                 <button
                   onClick={handleNextQuestion}
-                  disabled={count >= questions.length - 1}
+                  disabled={count >= questionData.length - 1}
                   className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
-                    count >= questions.length - 1
+                    count >= questionData.length - 1
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                       : "bg-green-600 hover:bg-green-700 text-white"
                   }`}
@@ -581,7 +603,7 @@ const Interview = ({ setStepCount }) => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Questions Completed</span>
                   <span className="font-medium">
-                    {count + 1}/{questions.length}
+                    {count + 1}/{questionData.length}
                   </span>
                 </div>
                 <div className="flex justify-between">
