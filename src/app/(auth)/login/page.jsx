@@ -22,6 +22,7 @@ const Page = () => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/login`,
         userData,
+        { withCredentials: true },
       );
       if (response.data.success) {
         alert(response.data.message);
