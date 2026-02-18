@@ -94,8 +94,8 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
       );
       if (response.data.success) {
         alert(response.data.message);
-        setStepCount(2);
         questionIdSetKar(response.data.data._id);
+        setStepCount(2);
       }
     } catch (error) {
       console.log("error while submit the data", error);

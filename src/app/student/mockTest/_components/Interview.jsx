@@ -32,8 +32,13 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
     stopRecording,
     clearTranscript,
   } = useSpeechRecognition();
-  const { questionData, currentQuestionIndex, loading, goToNextQuestion } =
-    useQuestions(questionIdMilGaya);
+  const {
+    questionData,
+    currentQuestionIndex,
+    loading,
+    goToNextQuestion,
+    endInterview,
+  } = useQuestions(questionIdMilGaya, transcript, setStepCount);
 
   // Start webcam on mount
   useEffect(() => {
@@ -130,7 +135,7 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
 
             {/* End Interview Button */}
             <button
-              onClick={() => setStepCount(3)}
+              onClick={endInterview}
               className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-4 rounded-xl font-semibold text-lg shadow-lg transition-all transform hover:-translate-y-0.5"
             >
               End Interview Session
