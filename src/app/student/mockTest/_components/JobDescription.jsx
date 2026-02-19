@@ -45,6 +45,7 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
   ];
 
   const questionCounts = [
+    { value: "2", label: "2 questions", duration: "~15 mins" },
     { value: "5", label: "5 questions", duration: "~15 mins" },
     { value: "10", label: "10 questions", duration: "~30 mins" },
     { value: "15", label: "15 questions", duration: "~45 mins" },

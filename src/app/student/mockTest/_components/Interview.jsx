@@ -38,6 +38,7 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
     loading,
     goToNextQuestion,
     endInterview,
+    saveQuestion,
   } = useQuestions(questionIdMilGaya, transcript, setStepCount);
 
   // Start webcam on mount
@@ -131,11 +132,12 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
               onClearTranscript={handleClearTranscript}
               onNextQuestion={handleNextQuestion}
               disableNext={currentQuestionIndex >= questionData.length - 1}
+              saveNext={saveQuestion}
             />
 
             {/* End Interview Button */}
             <button
-              onClick={endInterview}
+              onClick={() => endInterview(questionIdMilGaya)}
               className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-4 rounded-xl font-semibold text-lg shadow-lg transition-all transform hover:-translate-y-0.5"
             >
               End Interview Session

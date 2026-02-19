@@ -1,299 +1,316 @@
-"use client";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+const Report = ({ setStepCount }) => {
+  // Sample data - replace with your actual data
+  const reportData = [
+    {
+      id: 1,
+      question: "What is React and how does it work?",
+      userAnswer: "React is a JavaScript library for building user interfaces",
+      correctAnswer:
+        "React is a JavaScript library for building user interfaces, developed by Facebook",
+      accuracy: 75,
+      topic: "React Basics",
+      timeSpent: "2:30 min",
+    },
+    {
+      id: 2,
+      question: "Explain the virtual DOM in React",
+      userAnswer: "Virtual DOM is a lightweight copy of the actual DOM",
+      correctAnswer:
+        "Virtual DOM is a programming concept where a virtual representation of the UI is kept in memory",
+      accuracy: 60,
+      topic: "React Performance",
+      timeSpent: "3:15 min",
+    },
+    {
+      id: 3,
+      question: "What are React hooks?",
+      userAnswer: "Hooks let you use state in functional components",
+      correctAnswer:
+        "Hooks are functions that let you use state and lifecycle features in functional components",
+      accuracy: 80,
+      topic: "React Hooks",
+      timeSpent: "1:45 min",
+    },
+  ];
 
-// Mock data for past interviews
-const mockInterviews = [
-  {
-    id: "1",
-    skill: "React",
-    difficulty: "Intermediate",
-    date: "2023-11-15",
-    performanceScore: 78,
-    totalQuestions: 5,
-    answeredQuestions: 5,
-  },
-  {
-    id: "2",
-    skill: "Python",
-    difficulty: "Beginner",
-    date: "2023-11-10",
-    performanceScore: 65,
-    totalQuestions: 5,
-    answeredQuestions: 4,
-  },
-  {
-    id: "3",
-    skill: "Next.js",
-    difficulty: "Experienced",
-    date: "2023-11-05",
-    performanceScore: 85,
-    totalQuestions: 10,
-    answeredQuestions: 9,
-  },
-];
-
-const ReportsPage = ({ setStepCount }) => {
-  const [selectedInterview, setSelectedInterview] = useState(null);
-  const router = useRouter();
-
-  // Mock detailed report data
-  const getDetailedReport = (id) => {
-    const baseReport = {
-      skill: "React",
-      difficulty: "Intermediate",
-      date: "2023-11-15",
-      totalQuestions: 5,
-      answeredQuestions: 5,
-      performanceScore: 78,
-      feedback:
-        "You demonstrated good understanding of React concepts but could improve your problem-solving approach. Practice more on state management and hooks.",
-      areasToImprove: [
-        "State management",
-        "Custom hooks usage",
-        "Performance optimization",
-      ],
-      questions: [
-        {
-          id: 1,
-          text: "Explain the Virtual DOM in React",
-          feedback: "Good explanation but could mention reconciliation process",
-          score: 4,
-        },
-        {
-          id: 2,
-          text: "What are React hooks? Give examples",
-          feedback: "Excellent examples of useState and useEffect",
-          score: 5,
-        },
-        {
-          id: 3,
-          text: "How would you optimize a slow React component?",
-          feedback: "Missed some optimization techniques like memoization",
-          score: 3,
-        },
-      ],
-    };
-
-    return { ...baseReport, ...mockInterviews.find((i) => i.id === id) };
+  const getAccuracyColor = (accuracy) => {
+    if (accuracy >= 80) return "text-green-400";
+    if (accuracy >= 60) return "text-yellow-400";
+    return "text-red-400";
   };
 
-  const handleInterviewSelect = (id) => {
-    const report = getDetailedReport(id);
-    setSelectedInterview(report);
-  };
-
-  const handleBackToList = () => {
-    setSelectedInterview(null);
+  const getAccuracyBg = (accuracy) => {
+    if (accuracy >= 80) return "bg-green-500/20";
+    if (accuracy >= 60) return "bg-yellow-500/20";
+    return "bg-red-500/20";
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Interview Reports</h1>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Interview Reports
+            </h1>
+            <p className="text-gray-400 mt-2">
+              Detailed analysis of your interview performance
+            </p>
+          </div>
+          <button
+            onClick={() => setStepCount(1)}
+            className="mt-4 md:mt-0 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 px-6 py-3 rounded-xl border border-gray-700 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 group"
+          >
+            <svg
+              className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Back to Dashboard
+          </button>
+        </div>
 
-        {!selectedInterview ? (
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold">Your Interview History</h2>
-              <button
-                onClick={() => {
-                  setStepCount(1);
-                }}
-                className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {mockInterviews.map((interview) => (
-                <div
-                  key={interview.id}
-                  onClick={() => handleInterviewSelect(interview.id)}
-                  className="cursor-pointer bg-gray-700 hover:bg-gray-600 rounded-lg p-4 border border-gray-600 transition-colors"
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-lg font-medium">
-                        {interview.skill} Interview ({interview.difficulty})
-                      </h3>
-                      <p className="text-gray-400 text-sm">
-                        {interview.date} • {interview.answeredQuestions}/
-                        {interview.totalQuestions} questions answered
-                      </p>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-32 bg-gray-600 rounded-full h-2.5 mr-3">
-                        <div
-                          className="bg-blue-600 h-2.5 rounded-full"
-                          style={{ width: `${interview.performanceScore}%` }}
-                        ></div>
-                      </div>
-                      <span className="font-medium">
-                        {interview.performanceScore}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {mockInterviews.length === 0 && (
-              <div className="text-center py-12">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Total Questions</p>
+                <p className="text-3xl font-bold text-white mt-2">
+                  {reportData.length}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12 mx-auto text-gray-500 mb-4"
+                  className="w-6 h-6 text-purple-400"
                   fill="none"
-                  viewBox="0 0 24 24"
                   stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <h3 className="text-lg font-medium text-gray-300 mb-1">
-                  No interviews completed yet
-                </h3>
-                <p className="text-gray-500">
-                  Take your first mock interview to see your reports here
-                </p>
-                <button
-                  onClick={() => router.push("/interview")}
-                  className="mt-4 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium"
-                >
-                  Start an Interview
-                </button>
               </div>
-            )}
+            </div>
           </div>
-        ) : (
-          <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-lg">
-            <button
-              onClick={handleBackToList}
-              className="flex items-center text-gray-400 hover:text-white mb-6"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Back to all reports
-            </button>
 
-            <div className="flex justify-between items-start mb-8">
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-green-500/50 transition-all duration-300">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-semibold">
-                  {selectedInterview.skill} Interview Report
-                </h2>
-                <p className="text-gray-400">
-                  {selectedInterview.date} • {selectedInterview.difficulty}{" "}
-                  level • {selectedInterview.answeredQuestions}/
-                  {selectedInterview.totalQuestions} questions answered
+                <p className="text-gray-400 text-sm">Avg. Accuracy</p>
+                <p className="text-3xl font-bold text-white mt-2">
+                  {Math.round(
+                    reportData.reduce((acc, item) => acc + item.accuracy, 0) /
+                      reportData.length,
+                  )}
+                  %
                 </p>
               </div>
-              <div className="bg-gray-700 px-4 py-2 rounded-lg">
-                <span className="font-medium text-lg">
-                  {selectedInterview.performanceScore}%
-                </span>
-                <span className="text-gray-400 text-sm ml-1">
-                  Overall Score
-                </span>
+              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-lg font-medium mb-2">Skill Assessed</h3>
-                <p className="text-gray-300">{selectedInterview.skill}</p>
-              </div>
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-lg font-medium mb-2">Difficulty Level</h3>
-                <p className="text-gray-300">{selectedInterview.difficulty}</p>
-              </div>
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-lg font-medium mb-2">Completion</h3>
-                <p className="text-gray-300">
-                  {selectedInterview.answeredQuestions} of{" "}
-                  {selectedInterview.totalQuestions} questions answered
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="text-xl font-medium mb-4">Overall Feedback</h3>
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <p className="text-gray-300">{selectedInterview.feedback}</p>
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="text-xl font-medium mb-4">Areas to Improve</h3>
-              <div className="flex flex-wrap gap-2">
-                {selectedInterview.areasToImprove.map((area, index) => (
-                  <span
-                    key={index}
-                    className="bg-gray-700 px-3 py-1 rounded-full text-sm"
-                  >
-                    {area}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="text-xl font-medium mb-4">
-                Question-wise Analysis
-              </h3>
-              <div className="space-y-4">
-                {selectedInterview.questions?.map((question) => (
-                  <div
-                    key={question.id}
-                    className="bg-gray-700 rounded-lg p-4 border border-gray-600"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">{question.text}</h4>
-                      <div className="flex items-center">
-                        <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                          {question.score}/5
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-gray-400 text-sm">{question.feedback}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-between">
-              <button
-                onClick={() => router.push("/interview")}
-                className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium"
-              >
-                Retake This Interview
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded-lg font-medium"
-              >
-                Download Report
-              </button>
             </div>
           </div>
-        )}
+
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Topics Covered</p>
+                <p className="text-3xl font-bold text-white mt-2">
+                  {new Set(reportData.map((item) => item.topic)).size}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-blue-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l5 5a2 2 0 01.586 1.414V19a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-yellow-500/50 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Total Time</p>
+                <p className="text-3xl font-bold text-white mt-2">7:30</p>
+              </div>
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-yellow-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reports List */}
+        <div className="space-y-4">
+          {reportData.map((report, index) => (
+            <div
+              key={report.id}
+              className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-300 overflow-hidden group"
+            >
+              {/* Question Header */}
+              <div className="p-6 border-b border-gray-700 bg-gray-800/80">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm text-gray-400">
+                        Question {index + 1}
+                      </span>
+                      <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-medium">
+                        {report.topic}
+                      </span>
+                      <span className="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs font-medium">
+                        {report.timeSpent}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-white group-hover:text-purple-300 transition-colors">
+                      {report.question}
+                    </h3>
+                  </div>
+
+                  {/* Accuracy Badge */}
+                  <div
+                    className={`ml-4 px-4 py-2 rounded-lg ${getAccuracyBg(report.accuracy)} border border-gray-700`}
+                  >
+                    <p className="text-sm text-gray-400">Accuracy</p>
+                    <p
+                      className={`text-2xl font-bold ${getAccuracyColor(report.accuracy)}`}
+                    >
+                      {report.accuracy}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Answers Section */}
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* User Answer */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <p className="text-sm font-medium text-gray-300">
+                        Your Answer
+                      </p>
+                    </div>
+                    <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                      <p className="text-gray-300 leading-relaxed">
+                        {report.userAnswer}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Correct Answer */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <p className="text-sm font-medium text-gray-300">
+                        Correct Answer
+                      </p>
+                    </div>
+                    <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                      <p className="text-gray-300 leading-relaxed">
+                        {report.correctAnswer}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comparison Bar */}
+                <div className="mt-6 pt-4 border-t border-gray-700">
+                  <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
+                    <span>Answer Match</span>
+                    <span className={getAccuracyColor(report.accuracy)}>
+                      {report.accuracy}% Accurate
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2.5">
+                    <div
+                      className={`h-2.5 rounded-full transition-all duration-500 ${
+                        report.accuracy >= 80
+                          ? "bg-green-500"
+                          : report.accuracy >= 60
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                      }`}
+                      style={{ width: `${report.accuracy}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Export Button */}
+        <div className="mt-8 flex justify-end">
+          <button className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-6 py-3 rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/25">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+            Export Report
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default ReportsPage;
+export default Report;

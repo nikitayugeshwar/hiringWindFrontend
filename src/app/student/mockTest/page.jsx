@@ -6,7 +6,7 @@ import Report from "./_components/Report";
 // import Mic from "./_components/Mic";
 
 const page = () => {
-  const [stepCount, setStepCount] = useState(1);
+  const [stepCount, setStepCount] = useState(3);
   const [questionId, setQuestionId] = useState("");
   return (
     <div className="w-full h-full">

@@ -29,11 +29,30 @@ export const useQuestions = (questionIdMilGaya, transcript, setStepCount) => {
   }, [questionIdMilGaya]);
 
   const goToNextQuestion = () => {
-    // setQuestionData(
-    //   (questionData[currentQuestionIndex].userAnswer=transcript),
-    // );
+    if (transcript) {
+      setQuestionData((prev) =>
+        prev.map((item, index) =>
+          index === currentQuestionIndex
+            ? { ...item, userAnswer: transcript }
+            : item,
+        ),
+      );
+    }
+
     if (currentQuestionIndex < questionData.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
+    }
+  };
+
+  const saveQuestion = () => {
+    if (transcript) {
+      setQuestionData((prev) =>
+        prev.map((item, index) =>
+          index === currentQuestionIndex
+            ? { ...item, userAnswer: transcript }
+            : item,
+        ),
+      );
     }
   };
 
@@ -41,7 +60,9 @@ export const useQuestions = (questionIdMilGaya, transcript, setStepCount) => {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/endInterview/${questionIdMilGaya}`,
+        { questionData },
       );
+
       if (response.data.success) {
         alert("sumitted");
         setStepCount(3);
@@ -65,5 +86,6 @@ export const useQuestions = (questionIdMilGaya, transcript, setStepCount) => {
     goToNextQuestion,
     goToPreviousQuestion,
     endInterview,
+    saveQuestion,
   };
 };

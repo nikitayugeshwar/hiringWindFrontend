@@ -14,7 +14,7 @@ const SideNavbar = () => {
   const pathName = usePathname();
   console.log(pathName);
   return (
-    <div className="h-full flex flex-col justify-between w-56 bg-black  text-white">
+    <div className="h-full flex flex-col justify-between w-56 bg-black   text-white">
       <div className="flex flex-col gap-5  text-xl p-5">
         {navitems.map((item, index) => {
           const isActive = pathName === item.href;

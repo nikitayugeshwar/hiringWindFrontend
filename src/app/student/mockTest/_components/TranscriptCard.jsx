@@ -11,6 +11,7 @@ const TranscriptCard = ({
   onClearTranscript,
   onNextQuestion,
   disableNext,
+  saveNext,
 }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
@@ -38,7 +39,11 @@ const TranscriptCard = ({
         )}
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div
+        className={`mt-6  gap-3
+        ${disableNext ? "grid grid-cols-5" : "flex flex-wrap"}
+        `}
+      >
         <button
           onClick={onStartRecording}
           disabled={listening}
@@ -84,6 +89,15 @@ const TranscriptCard = ({
           Next Question
           <span className="text-sm">→</span>
         </button>
+
+        {disableNext && (
+          <button
+            onClick={saveNext}
+            className="flex items-center text-3xl w-36 px-5 py-3 rounded-lg font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Save
+          </button>
+        )}
       </div>
     </div>
   );
