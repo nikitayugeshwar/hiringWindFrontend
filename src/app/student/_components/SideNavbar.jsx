@@ -3,6 +3,8 @@ import { Red_Rose } from "next/font/google";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const SideNavbar = () => {
   const navitems = [
@@ -12,7 +14,22 @@ const SideNavbar = () => {
     { name: "Profile", href: "/student/profile" },
   ];
   const pathName = usePathname();
-  console.log(pathName);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/logout`,
+        {},
+        { withCredentials: true },
+      );
+
+      router.push("/login");
+    } catch (error) {
+      console.log("Logout failed", error);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col justify-between w-56 bg-black   text-white">
       <div className="flex flex-col gap-5  text-xl p-5">
@@ -31,7 +48,9 @@ const SideNavbar = () => {
           );
         })}
       </div>
-      <h1 className="pl-5">Logout</h1>
+      <button onClick={handleLogout} className="pl-5">
+        Logout
+      </button>
     </div>
   );
 };

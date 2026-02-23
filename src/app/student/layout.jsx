@@ -1,7 +1,31 @@
+"use client";
+import { useEffect } from "react";
 import SideNavbar from "./_components/SideNavbar";
 import UpperNavbar from "./_components/UpperNavbar";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function RootLayout({ children }) {
+  const router = useRouter();
+  useEffect(() => {
+    const authenticate = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/user/isAuthenticated",
+          { withCredentials: true },
+        );
+
+        if (response.data.success) {
+          router.push("/student"); // ✅ logged in
+        }
+      } catch (error) {
+        router.push("/login"); // ❌ not logged in
+      }
+    };
+
+    authenticate();
+  }, [router]);
+
   return (
     <html lang="en">
       <body>

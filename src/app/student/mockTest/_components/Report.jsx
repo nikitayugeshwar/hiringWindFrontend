@@ -1,37 +1,25 @@
-const Report = ({ setStepCount }) => {
-  // Sample data - replace with your actual data
-  const reportData = [
-    {
-      id: 1,
-      question: "What is React and how does it work?",
-      userAnswer: "React is a JavaScript library for building user interfaces",
-      correctAnswer:
-        "React is a JavaScript library for building user interfaces, developed by Facebook",
-      accuracy: 75,
-      topic: "React Basics",
-      timeSpent: "2:30 min",
-    },
-    {
-      id: 2,
-      question: "Explain the virtual DOM in React",
-      userAnswer: "Virtual DOM is a lightweight copy of the actual DOM",
-      correctAnswer:
-        "Virtual DOM is a programming concept where a virtual representation of the UI is kept in memory",
-      accuracy: 60,
-      topic: "React Performance",
-      timeSpent: "3:15 min",
-    },
-    {
-      id: 3,
-      question: "What are React hooks?",
-      userAnswer: "Hooks let you use state in functional components",
-      correctAnswer:
-        "Hooks are functions that let you use state and lifecycle features in functional components",
-      accuracy: 80,
-      topic: "React Hooks",
-      timeSpent: "1:45 min",
-    },
-  ];
+import { useEffect, useState } from "react";
+import { fetchQuestions } from "@/services/interview/api";
+
+const Report = ({ setStepCount, questionIdMilGaya }) => {
+  const [reportData, setReportData] = useState([]);
+  console.log("reportData", reportData);
+
+  useEffect(() => {
+    const getQuestions = async () => {
+      try {
+        const response = await fetchQuestions(questionIdMilGaya);
+        console.log("response", response);
+        setReportData(response);
+      } catch (error) {
+        console.log("error while fetching the questions", error);
+      }
+    };
+
+    if (questionIdMilGaya) {
+      getQuestions();
+    }
+  }, [questionIdMilGaya]);
 
   const getAccuracyColor = (accuracy) => {
     if (accuracy >= 80) return "text-green-400";

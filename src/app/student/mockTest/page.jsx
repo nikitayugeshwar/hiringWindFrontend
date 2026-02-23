@@ -6,7 +6,7 @@ import Report from "./_components/Report";
 // import Mic from "./_components/Mic";
 
 const page = () => {
-  const [stepCount, setStepCount] = useState(3);
+  const [stepCount, setStepCount] = useState(1);
   const [questionId, setQuestionId] = useState("");
   return (
     <div className="w-full h-full">
@@ -19,7 +19,9 @@ const page = () => {
       {stepCount == 2 && (
         <Interview setStepCount={setStepCount} questionIdMilGaya={questionId} />
       )}
-      {stepCount == 3 && <Report setStepCount={setStepCount} />}
+      {stepCount == 3 && (
+        <Report setStepCount={setStepCount} questionIdMilGaya={questionId} />
+      )}
       {/* <Mic /> */}
     </div>
   );
