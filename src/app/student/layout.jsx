@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
     const authenticate = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/user/isAuthenticated",
+          `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/isAuthenticated`,
           { withCredentials: true },
         );
 
