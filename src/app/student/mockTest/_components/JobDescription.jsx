@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiCode,
   FiBriefcase,
@@ -9,15 +9,28 @@ import {
 import { BsLightningCharge, BsShieldCheck } from "react-icons/bs";
 import { MdOutlineWorkOutline } from "react-icons/md";
 import axios from "axios";
+import { useUser } from "@/hooks/useUser";
 
 const JobDescription = ({ setStepCount, questionIdSetKar }) => {
+  const { userData } = useUser();
+  console.log("userData", userData);
   const [formData, setFormData] = useState({
     technology: "",
     experience: "",
     questionsNumber: "",
+    userId: "",
   });
-
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (userData?._id) {
+      setFormData((prev) => ({
+        ...prev,
+        userId: userData._id,
+      }));
+    }
+  }, [userData]);
 
   const technologies = [
     { value: "react", label: "React.js", level: "Advanced", icon: "⚛️" },
@@ -83,23 +96,30 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const validate = validateForm();
     if (!validate) {
       alert("pahle details bhar bsdk");
       return;
     }
+
     try {
+      setLoading(true); // 🔥 start loading
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/create`,
         formData,
       );
+
       if (response.data.success) {
-        alert(response.data.message);
+        // alert(response.data.message);
         questionIdSetKar(response.data.data._id);
         setStepCount(2);
       }
     } catch (error) {
       console.log("error while submit the data", error);
+    } finally {
+      setLoading(false); // 🔥 stop loading
     }
   };
 
@@ -406,10 +426,17 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <button
                   onClick={handleSubmit}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
+                  disabled={loading}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group disabled:opacity-70"
                 >
-                  <span>Start Interview</span>
-                  <FiArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  {loading ? (
+                    <span>Interview Starting...</span>
+                  ) : (
+                    <>
+                      <span>Start Interview</span>
+                      <FiArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"

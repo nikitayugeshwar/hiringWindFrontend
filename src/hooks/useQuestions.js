@@ -61,6 +61,7 @@ export const useQuestions = (questionIdMilGaya, transcript, setStepCount) => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/endInterview/${questionIdMilGaya}`,
         { questionData },
+        { withCredentials: true },
       );
 
       if (response.data.success) {
