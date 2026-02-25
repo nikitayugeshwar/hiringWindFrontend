@@ -2,6 +2,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FiCode, FiX, FiCalendar, FiClock } from "react-icons/fi";
+import Link from "next/link";
 
 const Page = () => {
   const [selectedInterview, setSelectedInterview] = useState(null);
@@ -51,9 +52,9 @@ const Page = () => {
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {interviewData.map((interview) => (
-            <div
+            <Link
+              href={`/student/reports/${interview._id}`}
               key={interview._id}
-              onClick={() => setSelectedInterview(interview)}
               className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition p-5 cursor-pointer"
             >
               <div className="flex items-center justify-between mb-4">
@@ -78,7 +79,7 @@ const Page = () => {
                 <p>Experience: {interview.experience}</p>
                 <p>Questions: {interview.questionsNumber}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

@@ -177,7 +177,7 @@ const Page = () => {
                 />
                 <input
                   name="name"
-                  value={userData.name}
+                  // value={userData.name}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   type="text"

@@ -1,12 +1,14 @@
 "use client";
 import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import axios from "axios";
 import SideNavbar from "./_components/SideNavbar";
 import UpperNavbar from "./_components/UpperNavbar";
-import { useRouter } from "next/navigation";
-import axios from "axios";
 
 export default function RootLayout({ children }) {
   const router = useRouter();
+  const pathname = usePathname();
+
   useEffect(() => {
     const authenticate = async () => {
       try {
@@ -16,28 +18,28 @@ export default function RootLayout({ children }) {
         );
 
         if (response.data.success) {
-          router.push("/student"); // ✅ logged in
+          // ✅ Only redirect if user is on login page
+          if (pathname === "/login") {
+            router.push("/student");
+          }
+        } else {
+          router.push("/login");
         }
       } catch (error) {
-        router.push("/login"); // ❌ not logged in
+        router.push("/login");
       }
     };
 
     authenticate();
-  }, [router]);
+  }, [pathname]);
 
   return (
     <html lang="en">
       <body>
         <div className="h-screen flex flex-col">
-          {/* Sticky Upper Navbar */}
           <UpperNavbar />
-
-          {/* Main Content Area */}
           <div className="flex flex-1 overflow-hidden">
             <SideNavbar />
-
-            {/* Scrollable Content */}
             <main className="flex-1 overflow-y-auto">{children}</main>
           </div>
         </div>
