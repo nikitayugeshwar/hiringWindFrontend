@@ -82,50 +82,6 @@ const Page = () => {
             </Link>
           ))}
         </div>
-
-        {/* Detail Modal */}
-        {selectedInterview && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-            <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
-              <button
-                onClick={() => setSelectedInterview(null)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
-              >
-                <FiX size={20} />
-              </button>
-
-              <h2 className="text-2xl font-semibold mb-4">
-                {selectedInterview.technology} Interview
-              </h2>
-
-              <div className="space-y-3 text-gray-700">
-                <p>
-                  <strong>Experience:</strong> {selectedInterview.experience}
-                </p>
-                <p>
-                  <strong>Questions:</strong>{" "}
-                  {selectedInterview.questionsNumber}
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {selectedInterview.status || "In Progress"}
-                </p>
-                {selectedInterview.feedback && (
-                  <p>
-                    <strong>Feedback:</strong> {selectedInterview.feedback}
-                  </p>
-                )}
-              </div>
-
-              <button
-                onClick={() => setSelectedInterview(null)}
-                className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import TranscriptCard from "../_components/TranscriptCard";
 import GuidelinesCard from "../_components/GuidelinesCard";
 import SessionInfo from "../_components/SessionInfo";
 import Timer from "../_components/Timer";
+import { useTabSwitch } from "@/hooks/usetabSwitch";
 
 const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
   // Custom hooks
@@ -40,6 +41,8 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
     endInterview,
     saveQuestion,
   } = useQuestions(questionIdMilGaya, transcript, setStepCount);
+
+  const { voilations } = useTabSwitch();
 
   // Start webcam on mount
   useEffect(() => {
