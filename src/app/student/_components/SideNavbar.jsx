@@ -12,6 +12,7 @@ const SideNavbar = () => {
     { name: "Mock Test", href: "/student/mockTest" },
     { name: "Reports", href: "/student/reports" },
     { name: "Profile", href: "/student/profile" },
+    { name: "Jobs", href: "/student/jobs" },
   ];
   const pathName = usePathname();
   const router = useRouter();

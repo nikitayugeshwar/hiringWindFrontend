@@ -4,7 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 
 const Page = () => {
-  const { id } = useParams();
+  const { jobId } = useParams();
+  console.log("jobId", jobId);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -27,13 +28,29 @@ const Page = () => {
     });
   };
 
+  useEffect(() => {
+    const jobData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/fetchedJobById/${jobId}`,
+        );
+        if (response.data.success) {
+          setFormData(response.data.data);
+        }
+      } catch (error) {
+        console.log("error while update job", error);
+      }
+    };
+    jobData();
+  }, [jobId]);
+
   // 🔹 Handle update submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/updateJob/${id}`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/updateJob/${jobId}`,
         formData,
         { withCredentials: true },
       );

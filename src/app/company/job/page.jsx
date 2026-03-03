@@ -5,6 +5,7 @@ import axios from "axios";
 
 const Page = () => {
   const [formData, setFormData] = useState([]);
+  const [deleted, setDeleted] = useState(0);
 
   useEffect(() => {
     const fetchedJob = async () => {
@@ -23,7 +24,21 @@ const Page = () => {
       }
     };
     fetchedJob();
-  }, []);
+  }, [deleted]);
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/deleteJob/${id}`,
+      );
+      if (response.data.success) {
+        alert(response.data.message);
+        setDeleted(deleted + 1);
+      }
+    } catch (err) {
+      console.log("error while deleting the job", err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -82,14 +97,19 @@ const Page = () => {
                       <div className="flex justify-center gap-3">
                         {/* Edit Button */}
                         <Link
-                          href={`/company/job/editJob`}
+                          href={`/company/job/${item._id}`}
                           className="px-4 py-1 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium shadow-sm transition"
                         >
                           Edit
                         </Link>
 
                         {/* Delete Button */}
-                        <button className="px-4 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium shadow-sm transition">
+                        <button
+                          onClick={() => {
+                            handleDelete(item._id);
+                          }}
+                          className="px-4 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium shadow-sm transition"
+                        >
                           Delete
                         </button>
                       </div>
