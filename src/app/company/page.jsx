@@ -7,6 +7,7 @@ const page = () => {
         <h1>bikiytrd</h1>
         <h1>Add job</h1>
       </div>
+      Dashboard psge
     </div>
   );
 };

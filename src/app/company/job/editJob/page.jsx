@@ -1,9 +1,12 @@
 "use client";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 const Page = () => {
+  const { id } = useParams();
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     jobTitle: "",
     companyName: "",
@@ -11,12 +14,12 @@ const Page = () => {
     jobType: "",
     salary: "",
     experience: "",
-    description: "",
     skills: "",
+    description: "",
     deadline: "",
   });
-  const router = useRouter();
 
+  // 🔹 Handle input change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -24,20 +27,23 @@ const Page = () => {
     });
   };
 
+  // 🔹 Handle update submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/create`,
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/updateJob/${id}`,
         formData,
         { withCredentials: true },
       );
+
       if (response.data.success) {
+        alert("Job updated successfully");
         router.push("/company/job");
-        alert(response.data.message);
       }
     } catch (error) {
-      console.log("error while craeting a job", error);
+      console.log("Error updating job:", error);
     }
   };
 
@@ -45,7 +51,7 @@ const Page = () => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="bg-white shadow-xl rounded-2xl w-full max-w-3xl p-8">
         <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
-          Post a New Job
+          Update Job
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -57,7 +63,6 @@ const Page = () => {
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleChange}
-              placeholder="Enter Job Title"
               className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
               required
             />
@@ -71,7 +76,6 @@ const Page = () => {
               name="companyName"
               value={formData.companyName}
               onChange={handleChange}
-              placeholder="Enter Company Name"
               className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
               required
             />
@@ -86,7 +90,6 @@ const Page = () => {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="City, Country"
                 className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
                 required
               />
@@ -119,7 +122,6 @@ const Page = () => {
                 name="salary"
                 value={formData.salary}
                 onChange={handleChange}
-                placeholder="e.g. $5000/month"
                 className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
@@ -133,7 +135,6 @@ const Page = () => {
                 name="experience"
                 value={formData.experience}
                 onChange={handleChange}
-                placeholder="e.g. 2+ Years"
                 className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
@@ -147,26 +148,24 @@ const Page = () => {
               name="skills"
               value={formData.skills}
               onChange={handleChange}
-              placeholder="e.g. React, Node.js, MongoDB"
               className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
             />
           </div>
 
-          {/* Job Description */}
+          {/* Description */}
           <div>
             <label className="block font-medium mb-1">Job Description</label>
             <textarea
-              name="description"
               rows="4"
+              name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Write job description here..."
               className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
               required
             ></textarea>
           </div>
 
-          {/* Application Deadline */}
+          {/* Deadline */}
           <div>
             <label className="block font-medium mb-1">
               Application Deadline
@@ -174,19 +173,19 @@ const Page = () => {
             <input
               type="date"
               name="deadline"
-              value={formData.deadline}
+              value={formData.deadline?.split("T")[0] || ""}
               onChange={handleChange}
               className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
             />
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <div className="text-center">
             <button
               type="submit"
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300"
             >
-              Post Job
+              Update Job
             </button>
           </div>
         </form>
@@ -194,4 +193,5 @@ const Page = () => {
     </div>
   );
 };
+
 export default Page;
