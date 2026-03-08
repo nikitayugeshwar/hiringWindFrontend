@@ -1,15 +1,17 @@
+// student/mockTest/page.js
 "use client";
 import React, { useState } from "react";
 import JobDescription from "./_components/JobDescription";
 import Interview from "./_components/Interview";
 import Report from "./_components/Report";
-// import Mic from "./_components/Mic";
+import { Sparkles } from "lucide-react";
 
-const page = () => {
+const Page = () => {
   const [stepCount, setStepCount] = useState(1);
   const [questionId, setQuestionId] = useState("");
+
   return (
-    <div className="w-full h-full">
+    <div className="w-full min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       {stepCount == 1 && (
         <JobDescription
           setStepCount={setStepCount}
@@ -22,9 +24,8 @@ const page = () => {
       {stepCount == 3 && (
         <Report setStepCount={setStepCount} questionIdMilGaya={questionId} />
       )}
-      {/* <Mic /> */}
     </div>
   );
 };
 
-export default page;
+export default Page;

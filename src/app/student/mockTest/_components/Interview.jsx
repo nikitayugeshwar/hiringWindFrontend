@@ -1,3 +1,4 @@
+// student/mockTest/_components/Interview.js
 "use client";
 import React, { useEffect } from "react";
 import "regenerator-runtime/runtime";
@@ -8,16 +9,16 @@ import { useTimer } from "../../../../hooks/useTimer";
 import { useSpeechRecognition } from "../../../../hooks/useSpeechRecognition";
 import { useQuestions } from "../../../../hooks/useQuestions";
 
-import VideoFeed from "../_components/VideoFeed";
-import QuestionCard from "../_components/QuestionCard";
-import TranscriptCard from "../_components/TranscriptCard";
-import GuidelinesCard from "../_components/GuidelinesCard";
-import SessionInfo from "../_components/SessionInfo";
-import Timer from "../_components/Timer";
+import VideoFeed from "./VideoFeed";
+import QuestionCard from "./QuestionCard";
+import TranscriptCard from "./TranscriptCard";
+import GuidelinesCard from "./GuidelinesCard";
+import SessionInfo from "./SessionInfo";
+import Timer from "./Timer";
 import { useTabSwitch } from "@/hooks/usetabSwitch";
+import { AlertCircle, Shield, Video, Mic, AlertTriangle } from "lucide-react";
 
 const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
-  // Custom hooks
   const { videoRef, cameraError, startWebcam, setCameraError } = useWebcam();
   const { canvasRef, isFaceInFrame, faceWarning } = useFaceDetection(
     videoRef,
@@ -42,14 +43,12 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
     saveQuestion,
   } = useQuestions(questionIdMilGaya, transcript, setStepCount);
 
-  const { voilations } = useTabSwitch();
+  const { violations } = useTabSwitch();
 
-  // Start webcam on mount
   useEffect(() => {
     startWebcam();
   }, [startWebcam]);
 
-  // Handle recording state
   const handleStartRecording = () => {
     startRecording();
     if (!isTimerRunning) {
@@ -80,8 +79,9 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
 
   if (!browserSupportsSpeechRecognition) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg">
+      <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-6 py-4 rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5" />
           Browser does not support speech recognition.
         </div>
       </div>
@@ -89,28 +89,51 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
+    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                React Developer Interview
+              <h1 className="text-2xl md:text-3xl font-bold font-serif">
+                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  React Developer Interview
+                </span>
               </h1>
-              <p className="text-gray-600 mt-1">Technical Assessment Session</p>
+              <p className="text-gray-400 mt-1">Technical Assessment Session</p>
             </div>
+
             <div className="flex items-center gap-4">
               <Timer seconds={timer} />
+
+              {/* Recording Status */}
               <div
-                className={`px-4 py-2 rounded-full font-medium ${
+                className={`
+                flex items-center gap-2 px-4 py-2 rounded-xl border
+                ${
                   isRecording
-                    ? "bg-green-100 text-green-800"
-                    : "bg-gray-100 text-gray-800"
-                }`}
+                    ? "bg-green-500/10 text-green-500 border-green-500/20"
+                    : "bg-gray-800/50 text-gray-400 border-pink-500/20"
+                }
+              `}
               >
-                {isRecording ? "Recording" : "Not Recording"}
+                <div
+                  className={`w-2 h-2 rounded-full ${isRecording ? "bg-green-500 animate-pulse" : "bg-gray-500"}`}
+                ></div>
+                <span className="text-sm font-medium">
+                  {isRecording ? "Recording" : "Not Recording"}
+                </span>
               </div>
+
+              {/* Violation Warning */}
+              {violations > 0 && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {violations} violations
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -123,6 +146,7 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
               currentIndex={currentQuestionIndex}
               totalQuestions={questionData.length}
               question={questionData[currentQuestionIndex]?.question}
+              topic={questionData[currentQuestionIndex]?.topic}
             />
 
             {/* Transcript Card */}
@@ -135,15 +159,16 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
               onClearTranscript={handleClearTranscript}
               onNextQuestion={handleNextQuestion}
               disableNext={currentQuestionIndex >= questionData.length - 1}
-              saveNext={saveQuestion}
+              saveNext={() => saveQuestion(questionIdMilGaya)}
             />
 
             {/* End Interview Button */}
             <button
               onClick={() => endInterview(questionIdMilGaya)}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-4 rounded-xl font-semibold text-lg shadow-lg transition-all transform hover:-translate-y-0.5"
+              className="w-full group relative bg-gradient-to-r from-red-600 to-red-500 text-white py-4 rounded-xl font-semibold text-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/25"
             >
-              End Interview Session
+              <span className="relative z-10">End Interview Session</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
           </div>
 
@@ -157,6 +182,7 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
               isFaceInFrame={isFaceInFrame}
               faceWarning={faceWarning}
               onRetryCamera={handleRetryCamera}
+              violations={violations}
             />
 
             {/* Guidelines Card */}
@@ -170,6 +196,7 @@ const InterviewPage = ({ setStepCount, questionIdMilGaya }) => {
               cameraError={cameraError}
               isFaceInFrame={isFaceInFrame}
               timer={timer}
+              violations={violations}
             />
           </div>
         </div>

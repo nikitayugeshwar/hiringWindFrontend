@@ -1,19 +1,24 @@
+// student/mockTest/_components/JobDescription.js
+"use client";
 import React, { useState, useEffect } from "react";
 import {
-  FiCode,
-  FiBriefcase,
-  FiFileText,
-  FiArrowRight,
-  FiAward,
-} from "react-icons/fi";
-import { BsLightningCharge, BsShieldCheck } from "react-icons/bs";
-import { MdOutlineWorkOutline } from "react-icons/md";
+  Code2,
+  Briefcase,
+  FileText,
+  ArrowRight,
+  Award,
+  Zap,
+  Shield,
+  Clock,
+  Sparkles,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
 import axios from "axios";
 import { useUser } from "@/hooks/useUser";
 
 const JobDescription = ({ setStepCount, questionIdSetKar }) => {
   const { userData } = useUser();
-  console.log("userData", userData);
   const [formData, setFormData] = useState({
     technology: "",
     experience: "",
@@ -33,36 +38,84 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
   }, [userData]);
 
   const technologies = [
-    { value: "react", label: "React.js", level: "Advanced", icon: "⚛️" },
-    { value: "javascript", label: "JavaScript", level: "Expert", icon: "📜" },
-    { value: "nodejs", label: "Node.js", level: "Advanced", icon: "🟢" },
+    {
+      value: "react",
+      label: "React.js",
+      level: "Advanced",
+      icon: "⚛️",
+      color: "from-cyan-500 to-blue-500",
+    },
+    {
+      value: "javascript",
+      label: "JavaScript",
+      level: "Expert",
+      icon: "📜",
+      color: "from-yellow-500 to-amber-500",
+    },
+    {
+      value: "nodejs",
+      label: "Node.js",
+      level: "Advanced",
+      icon: "🟢",
+      color: "from-green-500 to-emerald-500",
+    },
     {
       value: "express",
       label: "Express.js",
       level: "Intermediate",
       icon: "🚂",
+      color: "from-gray-500 to-slate-500",
     },
-    { value: "mongodb", label: "MongoDB", level: "Intermediate", icon: "🍃" },
-    { value: "java", label: "Java", level: "Expert", icon: "☕" },
-    { value: "python", label: "Python", level: "Advanced", icon: "🐍" },
-    { value: "typescript", label: "TypeScript", level: "Advanced", icon: "📘" },
-    { value: "nextjs", label: "Next.js", level: "Advanced", icon: "▲" },
+    {
+      value: "mongodb",
+      label: "MongoDB",
+      level: "Intermediate",
+      icon: "🍃",
+      color: "from-green-600 to-teal-500",
+    },
+    {
+      value: "java",
+      label: "Java",
+      level: "Expert",
+      icon: "☕",
+      color: "from-red-500 to-orange-500",
+    },
+    {
+      value: "python",
+      label: "Python",
+      level: "Advanced",
+      icon: "🐍",
+      color: "from-blue-500 to-indigo-500",
+    },
+    {
+      value: "typescript",
+      label: "TypeScript",
+      level: "Advanced",
+      icon: "📘",
+      color: "from-blue-600 to-purple-500",
+    },
+    {
+      value: "nextjs",
+      label: "Next.js",
+      level: "Advanced",
+      icon: "▲",
+      color: "from-black to-gray-700",
+    },
   ];
 
   const experienceLevels = [
-    { value: "0-1", label: "0-1 years", level: "Entry Level" },
-    { value: "1-3", label: "1-3 years", level: "Junior" },
-    { value: "3-5", label: "3-5 years", level: "Mid-Level" },
-    { value: "5-8", label: "5-8 years", level: "Senior" },
-    { value: "8+", label: "8+ years", level: "Lead/Architect" },
+    { value: "0-1", label: "0-1 years", level: "Entry Level", icon: "🌱" },
+    { value: "1-3", label: "1-3 years", level: "Junior", icon: "🌿" },
+    { value: "3-5", label: "3-5 years", level: "Mid-Level", icon: "🌳" },
+    { value: "5-8", label: "5-8 years", level: "Senior", icon: "🏆" },
+    { value: "8+", label: "8+ years", level: "Lead/Architect", icon: "👑" },
   ];
 
   const questionCounts = [
-    { value: "2", label: "2 questions", duration: "~15 mins" },
-    { value: "5", label: "5 questions", duration: "~15 mins" },
-    { value: "10", label: "10 questions", duration: "~30 mins" },
-    { value: "15", label: "15 questions", duration: "~45 mins" },
-    { value: "20", label: "20 questions", duration: "~60 mins" },
+    { value: "5", label: "5 questions", duration: "~15 mins", icon: "⚡" },
+    { value: "10", label: "10 questions", duration: "~30 mins", icon: "🔥" },
+    { value: "15", label: "15 questions", duration: "~45 mins", icon: "💪" },
+    { value: "20", label: "20 questions", duration: "~60 mins", icon: "🎯" },
   ];
 
   const handleChange = (e) => {
@@ -72,7 +125,6 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
       [name]: value,
     }));
 
-    // Clear error for this field
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -86,7 +138,7 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
     if (!formData.technology)
       newErrors.technology = "Please select a technology";
     if (!formData.experience)
-      newErrors.experience = "Please select years of experience";
+      newErrors.experience = "Please select experience level";
     if (!formData.questionsNumber)
       newErrors.questionsNumber = "Please select number of questions";
 
@@ -97,29 +149,23 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validate = validateForm();
-    if (!validate) {
-      alert("pahle details bhar bsdk");
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
-      setLoading(true); // 🔥 start loading
-
+      setLoading(true);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/create`,
         formData,
       );
 
       if (response.data.success) {
-        // alert(response.data.message);
         questionIdSetKar(response.data.data._id);
         setStepCount(2);
       }
     } catch (error) {
       console.log("error while submit the data", error);
     } finally {
-      setLoading(false); // 🔥 stop loading
+      setLoading(false);
     }
   };
 
@@ -128,52 +174,47 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center p-2 bg-blue-100 rounded-full mb-4">
-            <BsLightningCharge className="h-6 w-6 text-blue-600" />
+          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-2xl mb-6 border border-pink-500/30">
+            <Zap className="h-8 w-8 text-pink-500" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-blue-600 bg-clip-text text-transparent mb-4">
-            Practice Your Way to Success
+          <h1 className="text-4xl md:text-5xl font-bold font-serif mb-4">
+            <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              Practice Your Way to Success
+            </span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
             Customize your interview experience and get real-time feedback to
             ace your next tech interview
           </p>
         </div>
 
         {/* Main Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl border border-pink-500/20 shadow-2xl overflow-hidden">
           {/* Progress Steps */}
-          <div className="bg-gray-50 px-8 py-6 border-b border-gray-200">
+          <div className="bg-gray-800/50 px-8 py-6 border-b border-pink-500/20">
             <div className="flex items-center justify-between max-w-3xl mx-auto">
-              <div className="flex items-center">
-                <div className="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full font-semibold">
-                  1
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Step 1</p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    Configure Interview
-                  </p>
-                </div>
-              </div>
-              <div className="flex-1 mx-4 h-0.5 bg-gray-300">
-                <div className="w-0 h-full bg-blue-600 rounded-full"></div>
-              </div>
-              <div className="flex items-center">
-                <div className="flex items-center justify-center w-10 h-10 bg-gray-300 text-gray-600 rounded-full font-semibold">
-                  2
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Step 2</p>
-                  <p className="text-sm font-semibold text-gray-400">
-                    Start Interview
-                  </p>
-                </div>
-              </div>
+              <StepIndicator
+                number={1}
+                title="Configure"
+                active={true}
+                completed={false}
+              />
+              <StepIndicator
+                number={2}
+                title="Interview"
+                active={false}
+                completed={false}
+              />
+              <StepIndicator
+                number={3}
+                title="Report"
+                active={false}
+                completed={false}
+              />
             </div>
           </div>
 
@@ -184,48 +225,46 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Technology Selection */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-gray-300 mb-1">
                     <span className="flex items-center gap-2">
-                      <FiCode className="text-blue-500" />
+                      <Code2 className="w-4 h-4 text-pink-500" />
                       Technology Stack
                     </span>
                   </label>
-                  <div className="relative">
+                  <div className="relative group">
                     <select
                       name="technology"
                       value={formData.technology}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3.5 bg-white border-2 rounded-xl appearance-none focus:outline-none focus:ring-4 transition-all ${
-                        errors.technology
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-100"
-                          : "border-gray-200 focus:border-blue-500 focus:ring-blue-100"
-                      }`}
+                      className={`
+                        w-full px-4 py-4 bg-black/50 border-2 rounded-xl appearance-none
+                        focus:outline-none focus:ring-4 transition-all text-white
+                        ${
+                          errors.technology
+                            ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
+                            : "border-pink-500/20 focus:border-pink-500 focus:ring-pink-500/20"
+                        }
+                      `}
                     >
-                      <option value="">Select Technology</option>
+                      <option value="" className="bg-gray-900">
+                        Select Technology
+                      </option>
                       {technologies.map((tech) => (
-                        <option key={tech.value} value={tech.value}>
+                        <option
+                          key={tech.value}
+                          value={tech.value}
+                          className="bg-gray-900"
+                        >
                           {tech.icon} {tech.label} • {tech.level}
                         </option>
                       ))}
                     </select>
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <ChevronRight className="w-5 h-5 text-pink-500 rotate-90" />
                     </div>
                   </div>
                   {errors.technology && (
-                    <p className="text-sm text-red-600 mt-1">
+                    <p className="text-sm text-red-500 mt-1">
                       {errors.technology}
                     </p>
                   )}
@@ -233,48 +272,46 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
 
                 {/* Experience Selection */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-gray-300 mb-1">
                     <span className="flex items-center gap-2">
-                      <FiBriefcase className="text-blue-500" />
+                      <Briefcase className="w-4 h-4 text-pink-500" />
                       Experience Level
                     </span>
                   </label>
-                  <div className="relative">
+                  <div className="relative group">
                     <select
                       name="experience"
                       value={formData.experience}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3.5 bg-white border-2 rounded-xl appearance-none focus:outline-none focus:ring-4 transition-all ${
-                        errors.experience
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-100"
-                          : "border-gray-200 focus:border-blue-500 focus:ring-blue-100"
-                      }`}
+                      className={`
+                        w-full px-4 py-4 bg-black/50 border-2 rounded-xl appearance-none
+                        focus:outline-none focus:ring-4 transition-all text-white
+                        ${
+                          errors.experience
+                            ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
+                            : "border-pink-500/20 focus:border-pink-500 focus:ring-pink-500/20"
+                        }
+                      `}
                     >
-                      <option value="">Select Experience</option>
+                      <option value="" className="bg-gray-900">
+                        Select Experience
+                      </option>
                       {experienceLevels.map((exp) => (
-                        <option key={exp.value} value={exp.value}>
-                          {exp.label} • {exp.level}
+                        <option
+                          key={exp.value}
+                          value={exp.value}
+                          className="bg-gray-900"
+                        >
+                          {exp.icon} {exp.label} • {exp.level}
                         </option>
                       ))}
                     </select>
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <ChevronRight className="w-5 h-5 text-pink-500 rotate-90" />
                     </div>
                   </div>
                   {errors.experience && (
-                    <p className="text-sm text-red-600 mt-1">
+                    <p className="text-sm text-red-500 mt-1">
                       {errors.experience}
                     </p>
                   )}
@@ -282,49 +319,47 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
 
                 {/* Questions Selection */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-gray-300 mb-1">
                     <span className="flex items-center gap-2">
-                      <FiFileText className="text-blue-500" />
+                      <FileText className="w-4 h-4 text-pink-500" />
                       Number of Questions
                     </span>
                   </label>
-                  <div className="relative">
+                  <div className="relative group">
                     <select
                       name="questionsNumber"
                       value={formData.questionsNumber}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3.5 bg-white border-2 rounded-xl appearance-none focus:outline-none focus:ring-4 transition-all ${
-                        errors.questions
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-100"
-                          : "border-gray-200 focus:border-blue-500 focus:ring-blue-100"
-                      }`}
+                      className={`
+                        w-full px-4 py-4 bg-black/50 border-2 rounded-xl appearance-none
+                        focus:outline-none focus:ring-4 transition-all text-white
+                        ${
+                          errors.questionsNumber
+                            ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
+                            : "border-pink-500/20 focus:border-pink-500 focus:ring-pink-500/20"
+                        }
+                      `}
                     >
-                      <option value="">Select Questions</option>
+                      <option value="" className="bg-gray-900">
+                        Select Questions
+                      </option>
                       {questionCounts.map((q) => (
-                        <option key={q.value} value={q.value}>
-                          {q.label} • {q.duration}
+                        <option
+                          key={q.value}
+                          value={q.value}
+                          className="bg-gray-900"
+                        >
+                          {q.icon} {q.label} • {q.duration}
                         </option>
                       ))}
                     </select>
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <ChevronRight className="w-5 h-5 text-pink-500 rotate-90" />
                     </div>
                   </div>
-                  {errors.questions && (
-                    <p className="text-sm text-red-600 mt-1">
-                      {errors.questions}
+                  {errors.questionsNumber && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.questionsNumber}
                     </p>
                   )}
                 </div>
@@ -333,29 +368,33 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
               {/* Selected Configuration Summary */}
               {formData.technology &&
                 formData.experience &&
-                formData.questions && (
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                formData.questionsNumber && (
+                  <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-xl p-6 border border-pink-500/20">
                     <div className="flex items-start gap-4">
                       <div className="flex-shrink-0">
-                        <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                          <BsShieldCheck className="h-6 w-6 text-white" />
+                        <div className="w-12 h-12 bg-gradient-to-r from-pink-600 to-purple-600 rounded-xl flex items-center justify-center">
+                          <Shield className="h-6 w-6 text-white" />
                         </div>
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-2">
+                        <h3 className="font-semibold text-white mb-2">
                           Interview Configuration Ready
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span className="font-medium">Technology:</span>
-                            <span className="bg-white px-2 py-1 rounded-md border border-gray-200">
+                          <div className="flex items-center gap-2 text-sm text-gray-400">
+                            <span className="font-medium text-pink-500">
+                              Technology:
+                            </span>
+                            <span className="bg-black/50 px-2 py-1 rounded-lg border border-pink-500/20">
                               {getSelectedTechnology()?.icon}{" "}
                               {getSelectedTechnology()?.label}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span className="font-medium">Experience:</span>
-                            <span className="bg-white px-2 py-1 rounded-md border border-gray-200">
+                          <div className="flex items-center gap-2 text-sm text-gray-400">
+                            <span className="font-medium text-pink-500">
+                              Experience:
+                            </span>
+                            <span className="bg-black/50 px-2 py-1 rounded-lg border border-pink-500/20">
                               {
                                 experienceLevels.find(
                                   (e) => e.value === formData.experience,
@@ -363,12 +402,14 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
                               }
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span className="font-medium">Questions:</span>
-                            <span className="bg-white px-2 py-1 rounded-md border border-gray-200">
+                          <div className="flex items-center gap-2 text-sm text-gray-400">
+                            <span className="font-medium text-pink-500">
+                              Questions:
+                            </span>
+                            <span className="bg-black/50 px-2 py-1 rounded-lg border border-pink-500/20">
                               {
                                 questionCounts.find(
-                                  (q) => q.value === formData.questions,
+                                  (q) => q.value === formData.questionsNumber,
                                 )?.label
                               }
                             </span>
@@ -381,45 +422,24 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
 
               {/* Features Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
-                <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                  <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <BsLightningCharge className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-900">
-                      Real-time Feedback
-                    </h4>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Get instant feedback on your answers
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                  <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <MdOutlineWorkOutline className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-900">
-                      Industry Questions
-                    </h4>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Curated by senior engineers
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                  <div className="flex-shrink-0 w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <FiAward className="h-5 w-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-900">
-                      Performance Analytics
-                    </h4>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Track your progress over time
-                    </p>
-                  </div>
-                </div>
+                <FeatureCard
+                  icon={<Zap className="w-5 h-5" />}
+                  title="Real-time Feedback"
+                  description="Get instant feedback on your answers"
+                  gradient="from-pink-500 to-pink-600"
+                />
+                <FeatureCard
+                  icon={<Award className="w-5 h-5" />}
+                  title="Industry Questions"
+                  description="Curated by senior engineers"
+                  gradient="from-purple-500 to-pink-500"
+                />
+                <FeatureCard
+                  icon={<Sparkles className="w-5 h-5" />}
+                  title="Performance Analytics"
+                  description="Track your progress over time"
+                  gradient="from-pink-600 to-purple-600"
+                />
               </div>
 
               {/* Action Buttons */}
@@ -427,20 +447,27 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group disabled:opacity-70"
+                  className="flex-1 group relative bg-gradient-to-r from-pink-600 to-pink-400 text-white font-semibold py-4 px-8 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/25 disabled:opacity-70"
                 >
-                  {loading ? (
-                    <span>Interview Starting...</span>
-                  ) : (
-                    <>
-                      <span>Start Interview</span>
-                      <FiArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Starting Interview...
+                      </>
+                    ) : (
+                      <>
+                        Start Interview
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-700 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </button>
+
                 <button
                   type="button"
-                  className="px-8 py-4 border-2 border-gray-200 hover:border-gray-300 bg-white text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200"
+                  className="px-8 py-4 border-2 border-pink-500/20 bg-black/50 text-white font-semibold rounded-xl hover:bg-pink-500/10 transition-all duration-300"
                 >
                   Save Configuration
                 </button>
@@ -452,5 +479,55 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
     </div>
   );
 };
+
+// Step Indicator Component
+const StepIndicator = ({ number, title, active, completed }) => (
+  <div className="flex items-center">
+    <div className="flex flex-col items-center">
+      <div
+        className={`
+        flex items-center justify-center w-10 h-10 rounded-full font-semibold
+        ${
+          active
+            ? "bg-gradient-to-r from-pink-600 to-pink-400 text-white"
+            : completed
+              ? "bg-green-500/20 text-green-500 border border-green-500/20"
+              : "bg-gray-800 text-gray-400 border border-pink-500/20"
+        }
+      `}
+      >
+        {completed ? "✓" : number}
+      </div>
+      <span
+        className={`text-xs mt-2 ${active ? "text-pink-500" : "text-gray-500"}`}
+      >
+        {title}
+      </span>
+    </div>
+    {number < 3 && (
+      <div className="w-24 h-0.5 mx-4 bg-gradient-to-r from-pink-500/20 to-transparent"></div>
+    )}
+  </div>
+);
+
+// Feature Card Component
+const FeatureCard = ({ icon, title, description, gradient }) => (
+  <div className="group relative bg-gradient-to-br from-gray-900 to-black rounded-xl border border-pink-500/20 p-4 hover:border-pink-500/40 transition-all duration-300">
+    <div
+      className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-5 rounded-xl transition-opacity`}
+    ></div>
+    <div className="relative flex items-start gap-3">
+      <div
+        className={`flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br ${gradient} bg-opacity-10 flex items-center justify-center text-pink-500`}
+      >
+        {icon}
+      </div>
+      <div>
+        <h4 className="text-sm font-semibold text-white">{title}</h4>
+        <p className="text-xs text-gray-400 mt-1">{description}</p>
+      </div>
+    </div>
+  </div>
+);
 
 export default JobDescription;

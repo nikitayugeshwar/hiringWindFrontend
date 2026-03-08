@@ -2,6 +2,19 @@
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  FiBriefcase,
+  FiMapPin,
+  FiClock,
+  FiDollarSign,
+  FiUser,
+  FiCode,
+  FiFileText,
+  FiCalendar,
+  FiArrowLeft,
+  FiSave,
+} from "react-icons/fi";
 
 const Page = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +28,8 @@ const Page = () => {
     skills: "",
     deadline: "",
   });
+
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -26,167 +41,255 @@ const Page = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/create`,
         formData,
         { withCredentials: true },
       );
+
       if (response.data.success) {
         router.push("/company/job");
-        alert(response.data.message);
       }
     } catch (error) {
-      console.log("error while craeting a job", error);
+      console.log("error while creating a job", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="bg-white shadow-xl rounded-2xl w-full max-w-3xl p-8">
-        <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
-          Post a New Job
-        </h2>
+    <div className="max-w-4xl mx-auto">
+      {/* Header with back button */}
+      <div className="mb-8">
+        <Link
+          href="/company/job"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-teal-600 transition-colors mb-4"
+        >
+          <FiArrowLeft />
+          <span>Back to Jobs</span>
+        </Link>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 to-teal-500 p-8">
+          <div className="absolute inset-0 bg-black opacity-10"></div>
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-white rounded-full opacity-10"></div>
+
+          <div className="relative z-10">
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Post a New Job
+            </h1>
+            <p className="text-teal-100">
+              Fill in the details below to create a new job posting
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Job Title */}
-          <div>
-            <label className="block font-medium mb-1">Job Title</label>
-            <input
-              type="text"
-              name="jobTitle"
-              value={formData.jobTitle}
-              onChange={handleChange}
-              placeholder="Enter Job Title"
-              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-              required
-            />
-          </div>
-
-          {/* Company Name */}
-          <div>
-            <label className="block font-medium mb-1">Company Name</label>
-            <input
-              type="text"
-              name="companyName"
-              value={formData.companyName}
-              onChange={handleChange}
-              placeholder="Enter Company Name"
-              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-              required
-            />
-          </div>
-
-          {/* Location & Job Type */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-medium mb-1">Location</label>
+          <div className="group">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Job Title <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <FiBriefcase className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
               <input
                 type="text"
-                name="location"
-                value={formData.location}
+                name="jobTitle"
+                value={formData.jobTitle}
                 onChange={handleChange}
-                placeholder="City, Country"
-                className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
+                placeholder="e.g. Senior Frontend Developer"
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
                 required
               />
             </div>
+          </div>
 
-            <div>
-              <label className="block font-medium mb-1">Job Type</label>
-              <select
-                name="jobType"
-                value={formData.jobType}
+          {/* Company Name */}
+          <div className="group">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Company Name <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <FiUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+              <input
+                type="text"
+                name="companyName"
+                value={formData.companyName}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
+                placeholder="e.g. Tech Corp Inc."
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
                 required
-              >
-                <option value="">Select Job Type</option>
-                <option value="Full-Time">Full-Time</option>
-                <option value="Part-Time">Part-Time</option>
-                <option value="Internship">Internship</option>
-                <option value="Remote">Remote</option>
-              </select>
+              />
+            </div>
+          </div>
+
+          {/* Location & Job Type */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Location <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <FiMapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder="e.g. New York, NY"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Job Type <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <FiClock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+                <select
+                  name="jobType"
+                  value={formData.jobType}
+                  onChange={handleChange}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none appearance-none bg-white transition-all duration-300"
+                  required
+                >
+                  <option value="">Select Job Type</option>
+                  <option value="Full-Time">Full-Time</option>
+                  <option value="Part-Time">Part-Time</option>
+                  <option value="Internship">Internship</option>
+                  <option value="Remote">Remote</option>
+                </select>
+              </div>
             </div>
           </div>
 
           {/* Salary & Experience */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-medium mb-1">Salary</label>
-              <input
-                type="text"
-                name="salary"
-                value={formData.salary}
-                onChange={handleChange}
-                placeholder="e.g. $5000/month"
-                className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-              />
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Salary
+              </label>
+              <div className="relative">
+                <FiDollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+                <input
+                  type="text"
+                  name="salary"
+                  value={formData.salary}
+                  onChange={handleChange}
+                  placeholder="e.g. $80,000 - $100,000"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block font-medium mb-1">
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Experience Required
               </label>
-              <input
-                type="text"
-                name="experience"
-                value={formData.experience}
-                onChange={handleChange}
-                placeholder="e.g. 2+ Years"
-                className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-              />
+              <div className="relative">
+                <FiClock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+                <input
+                  type="text"
+                  name="experience"
+                  value={formData.experience}
+                  onChange={handleChange}
+                  placeholder="e.g. 3+ years"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
+                />
+              </div>
             </div>
           </div>
 
           {/* Skills */}
-          <div>
-            <label className="block font-medium mb-1">Required Skills</label>
-            <input
-              type="text"
-              name="skills"
-              value={formData.skills}
-              onChange={handleChange}
-              placeholder="e.g. React, Node.js, MongoDB"
-              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-            />
+          <div className="group">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Required Skills
+            </label>
+            <div className="relative">
+              <FiCode className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+              <input
+                type="text"
+                name="skills"
+                value={formData.skills}
+                onChange={handleChange}
+                placeholder="e.g. React, Node.js, MongoDB, TypeScript"
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Separate skills with commas
+            </p>
           </div>
 
           {/* Job Description */}
-          <div>
-            <label className="block font-medium mb-1">Job Description</label>
-            <textarea
-              name="description"
-              rows="4"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Write job description here..."
-              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-              required
-            ></textarea>
+          <div className="group">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Job Description <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <FiFileText className="absolute left-4 top-4 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+              <textarea
+                name="description"
+                rows="6"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Write a detailed job description including responsibilities, requirements, and benefits..."
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300 resize-none"
+                required
+              ></textarea>
+            </div>
           </div>
 
           {/* Application Deadline */}
-          <div>
-            <label className="block font-medium mb-1">
+          <div className="group">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Application Deadline
             </label>
-            <input
-              type="date"
-              name="deadline"
-              value={formData.deadline}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-            />
+            <div className="relative">
+              <FiCalendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+              <input
+                type="date"
+                name="deadline"
+                value={formData.deadline}
+                onChange={handleChange}
+                min={new Date().toISOString().split("T")[0]}
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
+              />
+            </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="text-center">
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
+            <Link
+              href="/company/job"
+              className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-all duration-300"
+            >
+              Cancel
+            </Link>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+              disabled={loading}
+              className="px-8 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Post Job
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  <span>Posting...</span>
+                </>
+              ) : (
+                <>
+                  <FiSave />
+                  <span>Post Job</span>
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -194,4 +297,5 @@ const Page = () => {
     </div>
   );
 };
+
 export default Page;
