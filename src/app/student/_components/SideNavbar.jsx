@@ -21,6 +21,7 @@ const SideNavbar = () => {
     { name: "Reports", href: "/student/reports", icon: BarChart3 },
     { name: "Profile", href: "/student/profile", icon: User },
     { name: "Jobs", href: "/student/jobs", icon: Briefcase },
+    { name: "Applied Jobs", href: "/student/appliedJobs", icon: Briefcase },
   ];
 
   const pathName = usePathname();

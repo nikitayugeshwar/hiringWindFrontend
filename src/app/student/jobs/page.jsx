@@ -21,6 +21,7 @@ const Page = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(1);
 
   useEffect(() => {
     const fetchedAllJob = async () => {
@@ -28,7 +29,9 @@ const Page = () => {
         setLoading(true);
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/getAllJob`,
+          { withCredentials: true },
         );
+        console.log("response", response);
         if (response.data.success) {
           setJobList(response.data.data);
           setFilteredJobs(response.data.data);
@@ -40,7 +43,7 @@ const Page = () => {
       }
     };
     fetchedAllJob();
-  }, []);
+  }, [status]);
 
   // Filter jobs based on search and type
   useEffect(() => {
@@ -214,6 +217,7 @@ const Page = () => {
               setIsShow(false);
             }}
             jobId={jobId}
+            setStatus={setStatus}
           />
         )}
       </div>
@@ -340,13 +344,19 @@ const JobCard = ({ job, onApply }) => {
               </span>{" "}
               applicants
             </div>
-            <button
-              onClick={onApply}
-              className="relative group/btn px-8 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/25"
-            >
-              <span className="relative z-10">Apply Now</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-700 to-pink-500 opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
-            </button>
+
+            {job.status === "Applied" ? (
+              <span className=" text-white px-8 py-3">Applied</span>
+            ) : (
+              <button
+                onClick={onApply}
+                className="relative group/btn px-8 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/25"
+              >
+                <span className="relative z-10">Apply Now</span>
+
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-700 to-pink-500 opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
+              </button>
+            )}
           </div>
         </div>
       </div>

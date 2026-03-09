@@ -14,7 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-const ApplyCard = ({ onClose, jobId }) => {
+const ApplyCard = ({ onClose, jobId, setStatus }) => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -102,8 +102,10 @@ const ApplyCard = ({ onClose, jobId }) => {
       );
 
       if (response.data.success) {
+        setStatus((prev) => prev + 1);
         // Show success message
         alert("Application submitted successfully!");
+
         onClose();
       }
     } catch (error) {
