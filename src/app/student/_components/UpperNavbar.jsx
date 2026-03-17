@@ -1,14 +1,26 @@
-// student/_components/UpperNavbar.js
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, User, ChevronDown, Sparkles } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import Link from "next/link";
+import socket from "../../../socket/socket.js";
 
 const UpperNavbar = () => {
   const { userData } = useUser();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    const handleJobStatus = (data) => {
+      alert(data.message);
+    };
+
+    socket.on("jobStatus", handleJobStatus);
+
+    return () => {
+      socket.off("jobStatus", handleJobStatus);
+    };
+  }, []);
 
   return (
     <nav className="bg-gradient-to-r from-black via-gray-900 to-black w-full sticky top-0 z-50 border-b border-pink-500/20">

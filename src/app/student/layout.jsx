@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import axios from "axios";
 import SideNavbar from "./_components/SideNavbar";
 import UpperNavbar from "./_components/UpperNavbar";
+import socket from "../../socket/socket.js";
 
 export default function RootLayout({ children }) {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function RootLayout({ children }) {
         );
 
         if (response.data.success) {
+          socket.emit("join", response.data.data);
           // ✅ Only redirect if user is on login page
           if (pathname === "/login") {
             router.push("/student");
