@@ -1,4 +1,5 @@
 "use client";
+import api from "@/utils/api";
 import axios from "axios";
 import React, { useState } from "react";
 
@@ -25,10 +26,9 @@ const Page = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/sendOtp`,
-        { email: userData.email },
-      );
+      const response = await api.post(`/api/user/sendOtp`, {
+        email: userData.email,
+      });
       console.log("response", response);
       if (response.data.success) {
         alert(response.data.message);
@@ -42,10 +42,10 @@ const Page = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/resetPassword`,
-        { otp: userData.otp, password: userData.password },
-      );
+      const response = await api.post(`/api/user/resetPassword`, {
+        otp: userData.otp,
+        password: userData.password,
+      });
       if (response.data.success) {
         alert(response.data.message);
       }

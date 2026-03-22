@@ -19,6 +19,7 @@ import {
   Brain,
   BarChart3,
 } from "lucide-react";
+import api from "@/utils/api";
 
 const Page = () => {
   const [reportData, setReportData] = useState(null);
@@ -31,9 +32,7 @@ const Page = () => {
     const fetchedInterviewById = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/getQuestions/${id}`,
-        );
+        const response = await api.get(`/api/interview/getQuestions/${id}`);
         if (response.data.success) {
           setReportData(response.data.data);
         }

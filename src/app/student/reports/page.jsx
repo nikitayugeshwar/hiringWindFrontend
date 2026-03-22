@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import api from "@/utils/api";
 
 const Page = () => {
   const [interviewData, setInterviewData] = useState([]);
@@ -21,8 +22,8 @@ const Page = () => {
     const fetchedInterview = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/getInterviewListByUserId`,
+        const response = await api.get(
+          `/api/interview/getInterviewListByUserId`,
           { withCredentials: true },
         );
 

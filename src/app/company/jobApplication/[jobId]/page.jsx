@@ -22,6 +22,7 @@ import {
   FiSearch,
   FiFilter,
 } from "react-icons/fi";
+import api from "@/utils/api";
 
 const Page = () => {
   const [applicationData, setApplicationData] = useState([]);
@@ -41,8 +42,8 @@ const Page = () => {
         setLoading(true);
 
         // Fetch applications
-        const applicationsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/appliedJob/getJobById/${jobId}`,
+        const applicationsResponse = await api.get(
+          `/api/appliedJob/getJobById/${jobId}`,
           { withCredentials: true },
         );
 
@@ -51,10 +52,9 @@ const Page = () => {
         }
 
         // Fetch job details
-        const jobResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/fetchedJobById/${jobId}`,
-          { withCredentials: true },
-        );
+        const jobResponse = await api.get(`/api/job/fetchedJobById/${jobId}`, {
+          withCredentials: true,
+        });
 
         if (jobResponse.data.success) {
           setJobDetails(jobResponse.data.data);
@@ -300,14 +300,14 @@ const Page = () => {
                       onChange={async (e) => {
                         const newStatus = e.target.value;
                         try {
-                          await axios.put(
-                            `${process.env.NEXT_PUBLIC_SITE_URL}/api/appliedJob/updateStatus/${item._id}`,
+                          await api.put(
+                            `/api/appliedJob/updateStatus/${item._id}`,
                             { status: newStatus },
                             { withCredentials: true },
                           );
                           // Refresh data
-                          const response = await axios.get(
-                            `${process.env.NEXT_PUBLIC_SITE_URL}/api/appliedJob/getJobById/${jobId}`,
+                          const response = await api.get(
+                            `/api/appliedJob/getJobById/${jobId}`,
                             { withCredentials: true },
                           );
                           if (response.data.success) {
@@ -527,15 +527,15 @@ const Page = () => {
                 <button
                   onClick={async () => {
                     try {
-                      await axios.put(
-                        `${process.env.NEXT_PUBLIC_SITE_URL}/api/appliedJob/updateStatus/${selectedApplication._id}`,
+                      await api.put(
+                        `/api/appliedJob/updateStatus/${selectedApplication._id}`,
                         { status: "shortlisted" },
                         { withCredentials: true },
                       );
                       setShowDetailsModal(false);
                       // Refresh data
-                      const response = await axios.get(
-                        `${process.env.NEXT_PUBLIC_SITE_URL}/api/appliedJob/getJobById/${jobId}`,
+                      const response = await api.get(
+                        `/api/appliedJob/getJobById/${jobId}`,
                         { withCredentials: true },
                       );
                       if (response.data.success) {

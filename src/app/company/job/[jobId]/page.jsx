@@ -16,6 +16,7 @@ import {
   FiSave,
   FiAlertCircle,
 } from "react-icons/fi";
+import api from "@/utils/api";
 
 const Page = () => {
   const { jobId } = useParams();
@@ -48,10 +49,9 @@ const Page = () => {
     const jobData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/fetchedJobById/${jobId}`,
-          { withCredentials: true },
-        );
+        const response = await api.get(`/api/job/fetchedJobById/${jobId}`, {
+          withCredentials: true,
+        });
 
         if (response.data.success) {
           setFormData(response.data.data);
@@ -72,11 +72,9 @@ const Page = () => {
     setError("");
 
     try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/updateJob/${jobId}`,
-        formData,
-        { withCredentials: true },
-      );
+      const response = await api.put(`/api/job/updateJob/${jobId}`, formData, {
+        withCredentials: true,
+      });
 
       if (response.data.success) {
         router.push("/company/job");

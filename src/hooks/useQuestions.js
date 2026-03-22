@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchQuestions } from "../services/interview/api";
 import axios from "axios";
+import api from "@/utils/api";
 
 export const useQuestions = (questionIdMilGaya, transcript, setStepCount) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -58,8 +59,8 @@ export const useQuestions = (questionIdMilGaya, transcript, setStepCount) => {
 
   const endInterview = async (questionIdMilGaya) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/endInterview/${questionIdMilGaya}`,
+      const response = await api.post(
+        `/api/interview/endInterview/${questionIdMilGaya}`,
         { questionData },
         { withCredentials: true },
       );

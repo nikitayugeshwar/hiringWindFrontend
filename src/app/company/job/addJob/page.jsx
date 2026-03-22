@@ -15,6 +15,7 @@ import {
   FiArrowLeft,
   FiSave,
 } from "react-icons/fi";
+import api from "@/utils/api";
 
 const Page = () => {
   const [formData, setFormData] = useState({
@@ -44,11 +45,9 @@ const Page = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/create`,
-        formData,
-        { withCredentials: true },
-      );
+      const response = await api.post(`/api/job/create`, formData, {
+        withCredentials: true,
+      });
 
       if (response.data.success) {
         router.push("/company/job");

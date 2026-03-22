@@ -2,6 +2,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/utils/api";
 
 export default function SignupPage() {
   const [comapanyData, setCompanyData] = useState({
@@ -25,10 +26,7 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/company/create`,
-        comapanyData,
-      );
+      const response = await api.post(`/api/company/create`, comapanyData);
       if (response.data.success) {
         alert(response.data.message);
         router.push("/company/login");

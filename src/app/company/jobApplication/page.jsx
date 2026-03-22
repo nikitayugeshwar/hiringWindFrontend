@@ -15,6 +15,7 @@ import {
   FiUsers,
   FiAward,
 } from "react-icons/fi";
+import api from "@/utils/api";
 
 const Page = () => {
   const [formData, setFormData] = useState([]);
@@ -24,10 +25,9 @@ const Page = () => {
     const fetchedJob = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/getJobComapnyId`,
-          { withCredentials: true },
-        );
+        const response = await api.get(`/api/job/getJobComapnyId`, {
+          withCredentials: true,
+        });
 
         if (response.data.success) {
           setFormData(response.data.data);

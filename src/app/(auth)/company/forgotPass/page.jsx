@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import axios from "axios";
+import api from "@/utils/api";
 
 const Page = () => {
   const [comapanyData, setCompanyData] = useState({
@@ -21,10 +22,7 @@ const Page = () => {
   const handleSendOtp = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/company/sendOtp`,
-        comapanyData,
-      );
+      const response = await api.post(`/api/company/sendOtp`, comapanyData);
       if (response.data.success) {
         alert(response.data.message);
         setIsVisible(false);

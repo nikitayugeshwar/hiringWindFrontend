@@ -11,6 +11,7 @@ import {
   FiFileText,
   FiLogOut,
 } from "react-icons/fi";
+import api from "@/utils/api";
 
 const SideNavbar = () => {
   const navitems = [
@@ -26,11 +27,7 @@ const SideNavbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/company/logout`,
-        {},
-        { withCredentials: true },
-      );
+      await api.post(`/api/company/logout`, {}, { withCredentials: true });
       router.push("/company/login");
     } catch (error) {
       console.error("Logout failed:", error);

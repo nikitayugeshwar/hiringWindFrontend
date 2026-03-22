@@ -5,6 +5,7 @@ import SideNavbar from "./_components/SideNavbar";
 import UpperNavbar from "./_components/UpperNavbar";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import api from "@/utils/api";
 
 export default function RootLayout({ children }) {
   const router = useRouter();
@@ -13,10 +14,9 @@ export default function RootLayout({ children }) {
   useEffect(() => {
     const companyAuthenticate = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/company/companyAuthticated`,
-          { withCredentials: true },
-        );
+        const response = await api.get(`/api/company/companyAuthticated`, {
+          withCredentials: true,
+        });
         if (response.data.success) {
           if (pathName === "/company/login") {
             router.push("/company");

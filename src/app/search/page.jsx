@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import api from "@/utils/api";
 
 const page = () => {
   const student = [
@@ -43,9 +44,7 @@ const page = () => {
   useEffect(() => {
     const fetchedinterview = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/getInterview`,
-        );
+        const response = await api.get(`/api/interview/getInterview`);
         if (response.data.success) {
           //   alert(response.data.message);
           setInterviewData(response.data.data);

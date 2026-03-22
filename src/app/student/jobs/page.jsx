@@ -12,6 +12,7 @@ import {
   Filter,
   Building2,
 } from "lucide-react";
+import api from "@/utils/api";
 
 const Page = () => {
   const [jobList, setJobList] = useState([]);
@@ -27,10 +28,9 @@ const Page = () => {
     const fetchedAllJob = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/job/getAllJob`,
-          { withCredentials: true },
-        );
+        const response = await api.get(`/api/job/getAllJob`, {
+          withCredentials: true,
+        });
         console.log("response", response);
         if (response.data.success) {
           setJobList(response.data.data);

@@ -13,6 +13,7 @@ import {
   FileText,
   AlertCircle,
 } from "lucide-react";
+import api from "@/utils/api";
 
 const ApplyCard = ({ onClose, jobId, setStatus }) => {
   const [formData, setFormData] = useState({
@@ -90,8 +91,7 @@ const ApplyCard = ({ onClose, jobId, setStatus }) => {
         data.append("resume", resumeFile);
       }
 
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/appliedJob/create/${jobId}`,
+      const response = await api.post(`/api/appliedJob/create/${jobId}`,
         data,
         {
           withCredentials: true,

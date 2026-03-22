@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useUser } from "@/hooks/useUser";
+import api from "@/utils/api";
 
 const JobDescription = ({ setStepCount, questionIdSetKar }) => {
   const { userData } = useUser();
@@ -153,10 +154,7 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/interview/create`,
-        formData,
-      );
+      const response = await api.post(`/api/interview/create`, formData);
 
       if (response.data.success) {
         questionIdSetKar(response.data.data._id);

@@ -21,6 +21,7 @@ import {
   Search,
   Calendar,
 } from "lucide-react";
+import api from "@/utils/api";
 
 const Page = () => {
   const [appliedJobData, setAppliedJobData] = useState([]);
@@ -34,10 +35,9 @@ const Page = () => {
     const fetchAppliedJob = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/appliedJob/getAppliedJob`,
-          { withCredentials: true },
-        );
+        const response = await api.get(`/api/appliedJob/getAppliedJob`, {
+          withCredentials: true,
+        });
 
         if (response.data.success) {
           setAppliedJobData(response.data.data);

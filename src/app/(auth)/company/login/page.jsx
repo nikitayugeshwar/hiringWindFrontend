@@ -2,6 +2,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/utils/api";
 
 export default function LoginPage() {
   const [comapanyData, setCompanyData] = useState({
@@ -21,11 +22,9 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/company/login`,
-        comapanyData,
-        { withCredentials: true },
-      );
+      const response = await api.post(`/api/company/login`, comapanyData, {
+        withCredentials: true,
+      });
       // console.log("response", response);
       if (response.data.success) {
         router.push("/company");

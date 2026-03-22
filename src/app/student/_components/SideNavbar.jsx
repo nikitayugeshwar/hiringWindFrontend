@@ -13,6 +13,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+import api from "@/utils/api";
 
 const SideNavbar = () => {
   const navitems = [
@@ -29,11 +30,7 @@ const SideNavbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/logout`,
-        {},
-        { withCredentials: true },
-      );
+      await api.post(`/api/user/logout`, {}, { withCredentials: true });
       router.push("/login");
     } catch (error) {
       console.log("Logout failed", error);
