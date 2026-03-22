@@ -5,6 +5,7 @@ import axios from "axios";
 import SideNavbar from "./_components/SideNavbar";
 import UpperNavbar from "./_components/UpperNavbar";
 import socket from "../../socket/socket.js";
+import api from "@/utils/api";
 
 export default function RootLayout({ children }) {
   const router = useRouter();
@@ -13,10 +14,9 @@ export default function RootLayout({ children }) {
   useEffect(() => {
     const authenticate = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/isAuthenticated`,
-          { withCredentials: true },
-        );
+        const response = await api.get(`/api/user/isAuthenticated`, {
+          withCredentials: true,
+        });
 
         if (response.data.success) {
           socket.emit("join", response.data.data);

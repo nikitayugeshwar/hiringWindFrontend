@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { FiMail, FiLock, FiEye, FiEyeOff, FiLogIn } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import api from "@/utils/api";
 
 const Page = () => {
   const [userData, setUserData] = useState({
@@ -85,11 +86,9 @@ const Page = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/login`,
-        userData,
-        { withCredentials: true },
-      );
+      const response = await api.post("/api/user/login", userData, {
+        withCredentials: true,
+      });
 
       if (response.data.success) {
         // Show success message

@@ -12,6 +12,7 @@
     "@mediapipe/face_detection": "^0.4.1646425229",
     "@tensorflow-models/face-detection": "^1.0.3",
     "axios": "^1.13.5",
+    "build": "^0.1.4",
     "dotenv": "^17.2.4",
     "face-api.js": "^0.22.2",
     "lucide-react": "^0.577.0",

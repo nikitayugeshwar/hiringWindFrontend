@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/utils/api";
 import { useEffect, useState } from "react";
 
 export const useUser = () => {
@@ -7,10 +7,9 @@ export const useUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const resposne = await axios.get(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/getUserById`,
-          { withCredentials: true },
-        );
+        const resposne = await api.get(`/api/user/getUserById`, {
+          withCredentials: true,
+        });
         console.log("resposne", resposne);
         if (resposne.data.success) {
           //   alert(resposne.data.message);
