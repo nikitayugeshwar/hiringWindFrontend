@@ -152,7 +152,7 @@ const Page = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="john doe"
                   className={`w-full py-3 pl-10 pr-3 bg-gray-700/30 border rounded-xl focus:outline-none focus:ring-2 transition-all text-gray-200 placeholder-gray-500 ${
                     touched.email && errors.email
                       ? "border-red-500 focus:ring-red-500/20"
