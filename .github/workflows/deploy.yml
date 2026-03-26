@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy Frontend
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup SSH
@@ -20,6 +20,6 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy on EC2
+      - name: Deploy frontend
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "bash ~/deploy.sh"
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "bash ~/deploy-frontend.sh"
