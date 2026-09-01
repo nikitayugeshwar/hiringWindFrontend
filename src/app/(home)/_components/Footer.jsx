@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-pink-500/5 to-transparent"></div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Company Info */}
           <div>
             <h3 className="text-2xl font-bold font-serif mb-4">
@@ -42,12 +42,23 @@ const Footer = () => {
           <div>
             <h4 className="text-white font-semibold mb-4">For Students</h4>
             <ul className="space-y-2">
-              <FooterLink href="/student/dashboard">Dashboard</FooterLink>
-              <FooterLink href="/student/mock-interviews">
-                Mock Interviews
-              </FooterLink>
+              <FooterLink href="/student">Dashboard</FooterLink>
+              <FooterLink href="/student/mockTest">Mock Interviews</FooterLink>
               <FooterLink href="/student/jobs">Job Matches</FooterLink>
-              <FooterLink href="/student/resources">Resources</FooterLink>
+              <FooterLink href="/student/reports">My Reports</FooterLink>
+            </ul>
+          </div>
+
+          {/* For Companies */}
+          <div>
+            <h4 className="text-white font-semibold mb-4">For Companies</h4>
+            <ul className="space-y-2">
+              <FooterLink href="/company">Company Panel</FooterLink>
+              <FooterLink href="/company/job/addJob">Post a Job</FooterLink>
+              <FooterLink href="/company/jobApplication">
+                Applications
+              </FooterLink>
+              <FooterLink href="/company/signUp">Create Account</FooterLink>
             </ul>
           </div>
 
@@ -56,12 +67,22 @@ const Footer = () => {
             <h4 className="text-white font-semibold mb-4">Contact Us</h4>
             <ul className="space-y-3">
               <li className="flex items-center gap-3 text-gray-400">
-                <Mail className="w-5 h-5 text-pink-500" />
-                <span>support@hiringwind.com</span>
+                <Mail className="w-5 h-5 text-pink-500 shrink-0" />
+                <a
+                  href="mailto:support@hiringwind.com"
+                  className="hover:text-pink-500 transition-colors break-all"
+                >
+                  support@hiringwind.com
+                </a>
               </li>
               <li className="flex items-center gap-3 text-gray-400">
-                <Phone className="w-5 h-5 text-pink-500" />
-                <span>+1 (555) 123-4567</span>
+                <Phone className="w-5 h-5 text-pink-500 shrink-0" />
+                <a
+                  href="tel:+15551234567"
+                  className="hover:text-pink-500 transition-colors"
+                >
+                  +1 (555) 123-4567
+                </a>
               </li>
               <li className="flex items-center gap-3 text-gray-400">
                 <MapPin className="w-5 h-5 text-pink-500" />
@@ -74,9 +95,9 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-pink-500/20 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-gray-400 text-sm">
-            © 2024 Hiring Wind. All rights reserved.
+            © {new Date().getFullYear()} Hiring Wind. All rights reserved.
           </p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             <Link
               href="/privacy"
               className="text-sm text-gray-400 hover:text-pink-500 transition-colors"

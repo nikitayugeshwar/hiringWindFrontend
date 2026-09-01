@@ -1,7 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import axios from "axios";
 import {
   FiBriefcase,
   FiMapPin,
@@ -19,21 +18,42 @@ import api from "@/utils/api";
 
 const Page = () => {
   const [formData, setFormData] = useState([]);
+  const [counts, setCounts] = useState({});
   const [deleted, setDeleted] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchedJob = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/api/job/getJobComapnyId`, {
-          withCredentials: true,
-        });
 
-        if (response.data.success) {
-          setFormData(response.data.data);
+        // Application counts are a separate call so a failure there still
+        // leaves the job table usable.
+        const [jobsResponse, countsResponse] = await Promise.allSettled([
+          api.get(`/api/job/getJobComapnyId`, { withCredentials: true }),
+          api.get(`/api/appliedJob/applicationCounts`, {
+            withCredentials: true,
+          }),
+        ]);
+
+        if (
+          jobsResponse.status === "fulfilled" &&
+          jobsResponse.value.data.success
+        ) {
+          setFormData(jobsResponse.value.data.data);
+        }
+
+        if (
+          countsResponse.status === "fulfilled" &&
+          countsResponse.value.data.success
+        ) {
+          setCounts(countsResponse.value.data.data || {});
         }
       } catch (error) {
         console.log("error while fetching the job", error);
@@ -44,8 +64,40 @@ const Page = () => {
     fetchedJob();
   }, [deleted]);
 
+  const totalApplications = useMemo(
+    () =>
+      Object.values(counts).reduce((sum, item) => sum + (item.total || 0), 0),
+    [counts],
+  );
+
+  const filteredJobs = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+
+    return formData.filter((job) => {
+      const matchesSearch =
+        !term ||
+        job.jobTitle?.toLowerCase().includes(term) ||
+        job.companyName?.toLowerCase().includes(term) ||
+        job.location?.toLowerCase().includes(term) ||
+        job.skills?.toLowerCase().includes(term);
+
+      const matchesType =
+        typeFilter === "all" ||
+        job.jobType?.toLowerCase() === typeFilter.toLowerCase();
+
+      const isExpired = job.deadline && new Date(job.deadline) < new Date();
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "active" && !isExpired) ||
+        (statusFilter === "expired" && isExpired);
+
+      return matchesSearch && matchesType && matchesStatus;
+    });
+  }, [formData, searchTerm, typeFilter, statusFilter]);
+
   const handleDelete = async (id) => {
     try {
+      setDeleting(true);
       const response = await api.delete(`/api/job/deleteJob/${id}`, {
         withCredentials: true,
       });
@@ -56,6 +108,8 @@ const Page = () => {
       }
     } catch (err) {
       console.log("error while deleting the job", err);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -80,6 +134,7 @@ const Page = () => {
   };
 
   const getDeadlineStatus = (deadline) => {
+    if (!deadline) return { text: "No deadline", color: "text-gray-600 bg-gray-50" };
     const today = new Date();
     const deadlineDate = new Date(deadline);
     const diffTime = deadlineDate - today;
@@ -101,14 +156,16 @@ const Page = () => {
   return (
     <div className="space-y-8">
       {/* Header Section with Gradient */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 to-teal-500 p-8">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 to-teal-500 p-6 sm:p-8">
         <div className="absolute inset-0 bg-black opacity-10"></div>
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-white rounded-full opacity-10"></div>
         <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white rounded-full opacity-10"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Job Listings</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+              Job Listings
+            </h1>
             <p className="text-teal-100 text-lg">
               Manage and track all your job postings
             </p>
@@ -125,7 +182,7 @@ const Page = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
           <div className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-white/20 rounded-lg">
@@ -179,7 +236,9 @@ const Page = () => {
               </div>
               <div>
                 <p className="text-white/80 text-sm">Applications</p>
-                <p className="text-white text-2xl font-bold">156</p>
+                <p className="text-white text-2xl font-bold">
+                  {totalApplications}
+                </p>
               </div>
             </div>
           </div>
@@ -191,28 +250,38 @@ const Page = () => {
         {/* Search and Filter Bar */}
         <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
+            <div className="relative flex-1 md:max-w-md">
               <input
                 type="text"
                 placeholder="Search jobs..."
-                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
               />
               <FiBriefcase className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
 
-            <div className="flex gap-3">
-              <select className="px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 bg-white">
-                <option>All Types</option>
-                <option>Full-Time</option>
-                <option>Part-Time</option>
-                <option>Internship</option>
-                <option>Remote</option>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none bg-white"
+              >
+                <option value="all">All Types</option>
+                <option value="Full-Time">Full-Time</option>
+                <option value="Part-Time">Part-Time</option>
+                <option value="Internship">Internship</option>
+                <option value="Remote">Remote</option>
               </select>
 
-              <select className="px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 bg-white">
-                <option>All Status</option>
-                <option>Active</option>
-                <option>Expired</option>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none bg-white"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="expired">Expired</option>
               </select>
             </div>
           </div>
@@ -224,8 +293,8 @@ const Page = () => {
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-teal-500 border-t-transparent"></div>
             <p className="text-gray-500 mt-4">Loading jobs...</p>
           </div>
-        ) : formData.length > 0 ? (
-          <div className="overflow-x-auto">
+        ) : filteredJobs.length > 0 ? (
+          <div className="overflow-x-auto scrollbar-light">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50">
@@ -247,14 +316,18 @@ const Page = () => {
                   <th className="py-4 px-6 text-left text-sm font-semibold text-gray-600">
                     Deadline
                   </th>
+                  <th className="py-4 px-6 text-left text-sm font-semibold text-gray-600">
+                    Applicants
+                  </th>
                   <th className="py-4 px-6 text-center text-sm font-semibold text-gray-600">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {formData.map((item, index) => {
+                {filteredJobs.map((item, index) => {
                   const deadlineStatus = getDeadlineStatus(item.deadline);
+                  const applicants = counts[item._id]?.total || 0;
 
                   return (
                     <tr
@@ -311,6 +384,15 @@ const Page = () => {
                         </div>
                       </td>
                       <td className="py-4 px-6">
+                        <Link
+                          href={`/company/jobApplication/${item._id}`}
+                          className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 font-medium"
+                        >
+                          <FiUsers />
+                          {applicants}
+                        </Link>
+                      </td>
+                      <td className="py-4 px-6">
                         <div className="flex items-center justify-center gap-3">
                           <Link
                             href={`/company/job/${item._id}`}
@@ -340,18 +422,22 @@ const Page = () => {
               <FiBriefcase className="text-4xl text-teal-500" />
             </div>
             <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              No jobs posted yet
+              {formData.length === 0 ? "No jobs posted yet" : "No jobs found"}
             </h3>
             <p className="text-gray-500 mb-6">
-              Get started by posting your first job opening
+              {formData.length === 0
+                ? "Get started by posting your first job opening"
+                : "No jobs match your search or filters"}
             </p>
-            <Link
-              href="/company/job/addJob"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-xl font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-300"
-            >
-              <FiPlus />
-              Post Your First Job
-            </Link>
+            {formData.length === 0 && (
+              <Link
+                href="/company/job/addJob"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-xl font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-300"
+              >
+                <FiPlus />
+                Post Your First Job
+              </Link>
+            )}
           </div>
         )}
       </div>
@@ -369,8 +455,9 @@ const Page = () => {
             </h3>
 
             <p className="text-gray-600 text-center mb-6">
-              Are you sure you want to delete "{selectedJob.jobTitle}"? This
-              action cannot be undone.
+              Are you sure you want to delete &quot;{selectedJob.jobTitle}
+              &quot;? Its applications will be removed too. This action cannot
+              be undone.
             </p>
 
             <div className="flex gap-3">
@@ -385,9 +472,10 @@ const Page = () => {
               </button>
               <button
                 onClick={() => handleDelete(selectedJob._id)}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-xl font-medium hover:from-red-700 hover:to-red-600 transition-all duration-300"
+                disabled={deleting}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-xl font-medium hover:from-red-700 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Delete
+                {deleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

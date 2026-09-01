@@ -1,6 +1,6 @@
 // student/mockTest/_components/Report.js
 import { useEffect, useState } from "react";
-import { fetchQuestions } from "@/services/interview/api";
+import { fetchInterview } from "@/services/interview/api";
 import {
   ArrowLeft,
   Award,
@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 const Report = ({ setStepCount, questionIdMilGaya }) => {
+  const [interview, setInterview] = useState(null);
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedQuestions, setExpandedQuestions] = useState({});
@@ -30,8 +31,9 @@ const Report = ({ setStepCount, questionIdMilGaya }) => {
     const getQuestions = async () => {
       try {
         setLoading(true);
-        const response = await fetchQuestions(questionIdMilGaya);
-        setReportData(response || []);
+        const data = await fetchInterview(questionIdMilGaya);
+        setInterview(data);
+        setReportData(data?.questions || []);
       } catch (error) {
         console.log("error while fetching the questions", error);
       } finally {
@@ -78,13 +80,14 @@ const Report = ({ setStepCount, questionIdMilGaya }) => {
             totalQuestions,
         )
       : 0;
-  const topicsCovered = new Set(reportData.map((item) => item.topic)).size;
+  const answered = reportData.filter((q) => q.userAnswer).length;
   const correctAnswers = reportData.filter(
     (q) => (q.accuracy || 0) >= 70,
   ).length;
 
-  // Format time (mock data - replace with actual if available)
-  const totalTime = "07:30";
+  const accuracies = reportData.map((q) => q.accuracy || 0);
+  const bestScore = accuracies.length ? Math.max(...accuracies) : 0;
+  const worstScore = accuracies.length ? Math.min(...accuracies) : 0;
 
   if (loading) {
     return (
@@ -129,7 +132,10 @@ const Report = ({ setStepCount, questionIdMilGaya }) => {
             </p>
           </div>
 
-          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium hover:shadow-2xl hover:shadow-pink-500/25 transition-all group">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium hover:shadow-2xl hover:shadow-pink-500/25 transition-all group"
+          >
             <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
             Export Report
           </button>
@@ -152,9 +158,10 @@ const Report = ({ setStepCount, questionIdMilGaya }) => {
           />
           <SummaryCard
             icon={<BarChart3 className="w-5 h-5" />}
-            label="Topics Covered"
-            value={topicsCovered}
+            label="Questions Answered"
+            value={answered}
             gradient="from-pink-600 to-purple-600"
+            subValue={"out of " + totalQuestions}
           />
           <SummaryCard
             icon={<CheckCircle className="w-5 h-5" />}
@@ -211,42 +218,43 @@ const Report = ({ setStepCount, questionIdMilGaya }) => {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-4">
               <QuickStat
+                icon={<Code2 className="w-4 h-4" />}
+                label="Technology"
+                value={interview?.technology || "General"}
+                unit={
+                  interview?.experience
+                    ? interview.experience + " years level"
+                    : "Mock interview"
+                }
+              />
+              <QuickStat
                 icon={<Clock className="w-4 h-4" />}
-                label="Time Spent"
-                value={totalTime}
-                unit="minutes"
+                label="Taken On"
+                value={
+                  interview?.createdAt
+                    ? new Date(interview.createdAt).toLocaleDateString()
+                    : "-"
+                }
+                unit={
+                  interview?.createdAt
+                    ? new Date(interview.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : ""
+                }
               />
               <QuickStat
                 icon={<TrendingUp className="w-4 h-4" />}
-                label="Best Topic"
-                value={
-                  reportData.reduce(
-                    (best, curr) =>
-                      (curr.accuracy || 0) > (best.accuracy || 0) ? curr : best,
-                    reportData[0] || {},
-                  ).topic || "N/A"
-                }
-                unit={`${Math.max(...reportData.map((q) => q.accuracy || 0))}% accuracy`}
+                label="Best Answer"
+                value={bestScore + "%"}
+                unit="highest accuracy"
               />
               <QuickStat
                 icon={<TrendingDown className="w-4 h-4" />}
-                label="Needs Work"
-                value={
-                  reportData.reduce(
-                    (worst, curr) =>
-                      (curr.accuracy || 0) < (worst.accuracy || 100)
-                        ? curr
-                        : worst,
-                    reportData[0] || {},
-                  ).topic || "N/A"
-                }
-                unit={`${Math.min(...reportData.map((q) => q.accuracy || 0))}% accuracy`}
-              />
-              <QuickStat
-                icon={<Award className="w-4 h-4" />}
-                label="Rank"
-                value="Top 15%"
-                unit="of all tests"
+                label="Weakest Answer"
+                value={worstScore + "%"}
+                unit="lowest accuracy"
               />
             </div>
           </div>
@@ -274,6 +282,7 @@ const Report = ({ setStepCount, questionIdMilGaya }) => {
                 key={index}
                 index={index}
                 report={report}
+                topic={interview?.technology}
                 isExpanded={expandedQuestions[index]}
                 onToggle={() => toggleQuestion(index)}
                 getAccuracyColor={getAccuracyColor}
@@ -364,6 +373,7 @@ const QuickStat = ({ icon, label, value, unit }) => (
 const QuestionCard = ({
   index,
   report,
+  topic,
   isExpanded,
   onToggle,
   getAccuracyColor,
@@ -384,13 +394,14 @@ const QuestionCard = ({
                 <span className="text-sm text-gray-400">
                   Question {index + 1}
                 </span>
-                <span className="px-3 py-1 bg-pink-500/20 text-pink-500 rounded-full text-xs font-medium border border-pink-500/20">
-                  {report.topic || "General"}
+                <span className="px-3 py-1 bg-pink-500/20 text-pink-500 rounded-full text-xs font-medium border border-pink-500/20 capitalize">
+                  {topic || "General"}
                 </span>
-                <span className="px-3 py-1 bg-gray-800 text-gray-400 rounded-full text-xs font-medium flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {report.timeSpent || "2:30"}
-                </span>
+                {!report.userAnswer && (
+                  <span className="px-3 py-1 bg-gray-800 text-gray-400 rounded-full text-xs font-medium">
+                    Unanswered
+                  </span>
+                )}
               </div>
 
               <h3 className="text-lg font-semibold text-white group-hover:text-pink-500 transition-colors">
@@ -476,8 +487,11 @@ const QuestionCard = ({
                     Feedback
                   </p>
                   <p className="text-sm text-gray-400">
-                    {report.feedback ||
-                      "Review the correct answer to improve your understanding."}
+                    {report.accuracy >= 80
+                      ? "Strong answer - it covered the key points of the expected response."
+                      : report.accuracy >= 60
+                        ? "Reasonable answer. Compare it with the expected response to fill the gaps."
+                        : "Review the expected answer above and try this topic again."}
                   </p>
                 </div>
               </div>

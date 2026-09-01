@@ -1,7 +1,7 @@
 // student/appliedJobs/page.js
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Link from "next/link";
 import {
   Briefcase,
   Building2,
@@ -283,11 +283,16 @@ const Page = () => {
               No applications found
             </h3>
             <p className="text-gray-400 mb-6">
-              You haven't applied to any jobs yet
+              {appliedJobData.length === 0
+                ? "You haven't applied to any jobs yet"
+                : "No applications match your search criteria"}
             </p>
-            <button className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium hover:shadow-2xl hover:shadow-pink-500/25 transition-all">
+            <Link
+              href="/student/jobs"
+              className="inline-block px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium hover:shadow-2xl hover:shadow-pink-500/25 transition-all"
+            >
               Browse Jobs
-            </button>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -408,6 +413,20 @@ const ApplicationCard = ({
           </div>
         )}
 
+        {/* Scheduled Interview */}
+        {item.isInterviewScheduled && (
+          <div className="mb-4 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+            <p className="text-xs font-medium text-green-500 flex items-center gap-2">
+              <Calendar className="w-3 h-3" />
+              Interview scheduled
+            </p>
+            <p className="text-sm text-gray-300 mt-1">
+              {formatDate(item.interviewDate)}
+              {item.interviewTime ? ` at ${item.interviewTime}` : ""}
+            </p>
+          </div>
+        )}
+
         {/* Expandable Details */}
         {isExpanded && (
           <div className="mt-4 pt-4 border-t border-pink-500/20 space-y-3">
@@ -475,16 +494,19 @@ const ApplicationCard = ({
             <div className="w-2 h-2 rounded-full bg-pink-500"></div>
             <p className="text-xs text-gray-400">Application Timeline</p>
           </div>
-          <div className="mt-2 flex items-center gap-1">
-            <StatusDot active={true} label="Applied" />
-            <div className="flex-1 h-0.5 bg-gradient-to-r from-pink-500 to-gray-700"></div>
-            <StatusDot active={item.status !== "pending"} label="Reviewed" />
-            <div className="flex-1 h-0.5 bg-gray-700"></div>
+          <div className="mt-3 flex items-start gap-1">
+            <StatusDot active label="Applied" />
+            <div className="flex-1 h-0.5 mt-1.5 bg-gradient-to-r from-pink-500 to-gray-700"></div>
+            <StatusDot
+              active={item.status !== "pending"}
+              label="Reviewed"
+            />
+            <div className="flex-1 h-0.5 mt-1.5 bg-gray-700"></div>
             <StatusDot
               active={item.status === "shortlisted" || item.status === "hired"}
               label="Shortlisted"
             />
-            <div className="flex-1 h-0.5 bg-gray-700"></div>
+            <div className="flex-1 h-0.5 mt-1.5 bg-gray-700"></div>
             <StatusDot active={item.status === "hired"} label="Hired" />
           </div>
         </div>
@@ -495,11 +517,13 @@ const ApplicationCard = ({
 
 // Status Dot Component for Timeline
 const StatusDot = ({ active, label }) => (
-  <div className="flex flex-col items-center">
+  <div className="flex flex-col items-center shrink-0">
     <div
       className={`w-3 h-3 rounded-full ${active ? "bg-pink-500" : "bg-gray-700"}`}
     ></div>
-    <span className="text-xs text-gray-500 mt-1">{label}</span>
+    <span className="text-[10px] sm:text-xs text-gray-500 mt-1 text-center">
+      {label}
+    </span>
   </div>
 );
 

@@ -5,7 +5,7 @@ import Component2 from "./Component2";
 import Component3 from "./Component3";
 import { add } from "./Function";
 
-const page = () => {
+const Page = () => {
   const [isNumber, setIsNumber] = useState(0);
 
   const value = add(3, 5);
@@ -27,4 +27,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

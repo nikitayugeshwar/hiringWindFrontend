@@ -1,15 +1,16 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import axios from "axios";
 import SideNavbar from "./_components/SideNavbar";
 import UpperNavbar from "./_components/UpperNavbar";
 import socket from "../../socket/socket.js";
 import api from "@/utils/api";
 
-export default function RootLayout({ children }) {
+export default function StudentLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     const authenticate = async () => {
@@ -20,10 +21,7 @@ export default function RootLayout({ children }) {
 
         if (response.data.success) {
           socket.emit("join", response.data.data);
-          // ✅ Only redirect if user is on login page
-          if (pathname === "/login") {
-            router.push("/student");
-          }
+          setCheckingAuth(false);
         } else {
           router.push("/login");
         }
@@ -33,19 +31,31 @@ export default function RootLayout({ children }) {
     };
 
     authenticate();
-  }, [pathname]);
+  }, [pathname, router]);
+
+  if (checkingAuth) {
+    return (
+      <div className="h-screen w-full bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-pink-500/30 border-t-pink-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400 text-sm">Loading your portal...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <html lang="en">
-      <body>
-        <div className="h-screen flex flex-col">
-          <UpperNavbar />
-          <div className="flex flex-1 overflow-hidden">
-            <SideNavbar />
-            <main className="flex-1 overflow-y-auto">{children}</main>
-          </div>
-        </div>
-      </body>
-    </html>
+    <div className="h-screen flex flex-col bg-black">
+      <UpperNavbar onMenuClick={() => setSidebarOpen(true)} />
+      <div className="flex flex-1 overflow-hidden">
+        <SideNavbar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+        <main className="flex-1 overflow-y-auto custom-scrollbar">
+          {children}
+        </main>
+      </div>
+    </div>
   );
 }

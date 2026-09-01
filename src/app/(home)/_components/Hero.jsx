@@ -28,7 +28,7 @@ const Hero = () => {
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-serif mb-6">
-              <span className="text-white">Let's </span>
+              <span className="text-white">Let&apos;s </span>
               <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
                 Prep Together
               </span>
@@ -36,7 +36,7 @@ const Hero = () => {
 
             <p className="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto lg:mx-0 mb-8">
               Stop looking for a secret trick and recognize that the best
-              version of yourself should be your vision, not anybody else's
+              version of yourself should be your vision, not anybody else&apos;s
             </p>
 
             {/* Feature Pills */}

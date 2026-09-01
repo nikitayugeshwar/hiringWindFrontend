@@ -1,8 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import axios from "axios";
 import {
   FiUser,
   FiMail,
@@ -12,7 +11,6 @@ import {
   FiFileText,
   FiDownload,
   FiEye,
-  FiCheckCircle,
   FiXCircle,
   FiArrowLeft,
   FiBriefcase,
@@ -21,6 +19,7 @@ import {
   FiAward,
   FiSearch,
   FiFilter,
+  FiLoader,
 } from "react-icons/fi";
 import api from "@/utils/api";
 
@@ -32,42 +31,96 @@ const Page = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [scheduleInterviewFor, setScheduleInterviewFor] = useState(null);
+  const [interviewData, setInterviewData] = useState({
+    date: "",
+    time: "",
+  });
+  const [updatingStatus, setUpdatingStatus] = useState(null);
 
   const { jobId } = useParams();
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        // Fetch applications
-        const applicationsResponse = await api.get(
-          `/api/appliedJob/getJobById/${jobId}`,
-          { withCredentials: true },
-        );
+      // Fetch applications
+      const applicationsResponse = await api.get(
+        `/api/appliedJob/getJobById/${jobId}`,
+        { withCredentials: true },
+      );
+      console.log("applicationsResponse", applicationsResponse.data);
 
-        if (applicationsResponse.data.success) {
-          setApplicationData(applicationsResponse.data.data);
-        }
-
-        // Fetch job details
-        const jobResponse = await api.get(`/api/job/fetchedJobById/${jobId}`, {
-          withCredentials: true,
-        });
-
-        if (jobResponse.data.success) {
-          setJobDetails(jobResponse.data.data);
-        }
-      } catch (error) {
-        console.log("error while fetching data", error);
-      } finally {
-        setLoading(false);
+      if (applicationsResponse.data.success) {
+        setApplicationData(applicationsResponse.data.data);
       }
-    };
 
-    fetchData();
+      // Fetch job details
+      const jobResponse = await api.get(`/api/job/fetchedJobById/${jobId}`, {
+        withCredentials: true,
+      });
+
+      if (jobResponse.data.success) {
+        setJobDetails(jobResponse.data.data);
+      }
+    } catch (error) {
+      console.error("Error while fetching data", error);
+    } finally {
+      setLoading(false);
+    }
   }, [jobId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const updateApplicationStatus = async (applicationId, newStatus) => {
+    try {
+      setUpdatingStatus(applicationId);
+      await api.put(
+        `/api/appliedJob/updateStatus/${applicationId}`,
+        { status: newStatus },
+        { withCredentials: true },
+      );
+      await fetchData(); // Refresh data
+    } catch (error) {
+      console.error("Error updating status", error);
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const handleScheduleInterview = async (studentId, e) => {
+    e.preventDefault();
+    if (!interviewData.date || !interviewData.time) {
+      alert("Please select both date and time");
+      return;
+    }
+
+    try {
+      const response = await api.post(
+        `/api/appliedJob/scheduleInterview/${studentId}`,
+        {
+          jobId: jobId,
+          interviewDate: interviewData.date,
+          interviewTime: interviewData.time,
+        },
+        { withCredentials: true },
+      );
+
+      // Reset states
+      setScheduleInterviewFor(null);
+      setInterviewData({ date: "", time: "" });
+
+      if (response.data.success) {
+        await fetchData();
+      }
+    } catch (error) {
+      console.error("Error scheduling interview", error);
+      alert("Failed to schedule interview");
+    }
+  };
 
   const filteredApplications = applicationData.filter((app) => {
     const matchesSearch =
@@ -90,6 +143,8 @@ const Page = () => {
         return "bg-green-100 text-green-800";
       case "rejected":
         return "bg-red-100 text-red-800";
+      case "hired":
+        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -116,7 +171,7 @@ const Page = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-12">
       {/* Header with back button and job info */}
       <div className="mb-8">
         <Link
@@ -127,7 +182,7 @@ const Page = () => {
           <span>Back to Jobs</span>
         </Link>
 
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 to-teal-500 p-8">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 to-teal-500 p-6 sm:p-8">
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-white rounded-full opacity-10"></div>
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white rounded-full opacity-10"></div>
@@ -135,7 +190,7 @@ const Page = () => {
           <div className="relative z-10">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                   {jobDetails?.jobTitle || "Job Applications"}
                 </h1>
                 <p className="text-teal-100 flex items-center gap-2">
@@ -144,7 +199,7 @@ const Page = () => {
                 </p>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
                 <div className="bg-white/20 backdrop-blur-lg rounded-xl px-6 py-3">
                   <p className="text-white/80 text-sm">Total Applications</p>
                   <p className="text-white text-2xl font-bold">
@@ -219,6 +274,7 @@ const Page = () => {
               <option value="reviewed">Reviewed</option>
               <option value="shortlisted">Shortlisted</option>
               <option value="rejected">Rejected</option>
+              <option value="hired">Hired</option>
             </select>
           </div>
         </div>
@@ -227,21 +283,21 @@ const Page = () => {
       {/* Applications List */}
       {filteredApplications.length > 0 ? (
         <div className="space-y-4">
-          {filteredApplications.map((item, index) => (
+          {filteredApplications.map((item) => (
             <div
-              key={item._id || index}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group"
+              key={item._id}
+              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
             >
               <div className="p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                   {/* Candidate Info */}
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg flex-shrink-0">
                       {item.fullName?.charAt(0).toUpperCase()}
                     </div>
 
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3    mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-3 mb-2">
                         <h3 className="text-lg font-semibold text-gray-800">
                           {item.fullName}
                         </h3>
@@ -252,17 +308,34 @@ const Page = () => {
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <FiMail className="text-gray-400" />
-                          <span className="text-sm">{item.email}</span>
+                      {item.isInterviewScheduled && (
+                        <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg text-sm">
+                          <FiCalendar className="flex-shrink-0" />
+                          <span>
+                            Interview{" "}
+                            {item.interviewDate
+                              ? new Date(
+                                  item.interviewDate,
+                                ).toLocaleDateString()
+                              : ""}
+                            {item.interviewTime
+                              ? ` at ${item.interviewTime}`
+                              : ""}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div className="flex items-center gap-2 text-gray-600 min-w-0">
+                          <FiMail className="text-gray-400 flex-shrink-0" />
+                          <span className="text-sm truncate">{item.email}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-600">
-                          <FiPhone className="text-gray-400" />
+                          <FiPhone className="text-gray-400 flex-shrink-0" />
                           <span className="text-sm">{item.phone}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-600">
-                          <FiDollarSign className="text-gray-400" />
+                          <FiDollarSign className="text-gray-400 flex-shrink-0" />
                           <span className="text-sm">
                             Current: {formatSalary(item.currentSalary)}
                           </span>
@@ -272,16 +345,16 @@ const Page = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-3 lg:border-l lg:border-gray-200 lg:pl-6">
+                  <div className="flex flex-wrap items-center gap-2 lg:border-l lg:border-gray-200 lg:pl-6 shrink-0">
                     <button
                       onClick={() => {
                         setSelectedApplication(item);
                         setShowDetailsModal(true);
                       }}
-                      className="p-3 text-teal-600 hover:bg-teal-50 rounded-xl transition-all duration-200 group-hover:scale-110"
+                      className="p-2.5 text-teal-600 hover:bg-teal-50 rounded-xl transition-all duration-200"
                       title="View Details"
                     >
-                      <FiEye size={20} />
+                      <FiEye size={18} />
                     </button>
 
                     {item.resumeUrl && (
@@ -289,44 +362,100 @@ const Page = () => {
                         href={item.resumeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 group-hover:scale-110"
+                        className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
                         title="Download Resume"
                       >
-                        <FiDownload size={20} />
+                        <FiDownload size={18} />
                       </a>
                     )}
 
                     <select
                       onChange={async (e) => {
-                        const newStatus = e.target.value;
-                        try {
-                          await api.put(
-                            `/api/appliedJob/updateStatus/${item._id}`,
-                            { status: newStatus },
-                            { withCredentials: true },
-                          );
-                          // Refresh data
-                          const response = await api.get(
-                            `/api/appliedJob/getJobById/${jobId}`,
-                            { withCredentials: true },
-                          );
-                          if (response.data.success) {
-                            setApplicationData(response.data.data);
-                          }
-                        } catch (error) {
-                          console.log("Error updating status", error);
-                        }
+                        await updateApplicationStatus(item._id, e.target.value);
                       }}
                       value={item.status || "pending"}
-                      className="px-4 py-2 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 bg-white text-sm"
+                      disabled={updatingStatus === item._id}
+                      className="px-3 py-2 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 bg-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <option value="pending">Pending</option>
                       <option value="reviewed">Reviewed</option>
                       <option value="shortlisted">Shortlisted</option>
                       <option value="rejected">Rejected</option>
+                      <option value="hired">Hired</option>
                     </select>
+
+                    {item.status === "shortlisted" && (
+                      <button
+                        onClick={() =>
+                          setScheduleInterviewFor(
+                            scheduleInterviewFor === item._id ? null : item._id,
+                          )
+                        }
+                        className="px-3 py-2 bg-teal-600 text-white rounded-xl text-sm hover:bg-teal-700 transition-colors whitespace-nowrap"
+                      >
+                        {scheduleInterviewFor === item._id
+                          ? "Cancel"
+                          : item.isInterviewScheduled
+                            ? "Reschedule"
+                            : "Schedule Interview"}
+                      </button>
+                    )}
                   </div>
                 </div>
+
+                {/* Interview Schedule Form */}
+                {scheduleInterviewFor === item._id && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <form
+                      onSubmit={(e) =>
+                        handleScheduleInterview(item.studentId, e)
+                      }
+                      className="flex flex-col sm:flex-row gap-4 items-end"
+                    >
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Interview Date
+                        </label>
+                        <input
+                          type="date"
+                          value={interviewData.date}
+                          onChange={(e) =>
+                            setInterviewData({
+                              ...interviewData,
+                              date: e.target.value,
+                            })
+                          }
+                          min={new Date().toISOString().split("T")[0]}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none"
+                          required
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Interview Time
+                        </label>
+                        <input
+                          type="time"
+                          value={interviewData.time}
+                          onChange={(e) =>
+                            setInterviewData({
+                              ...interviewData,
+                              time: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none"
+                          required
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="px-6 py-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-300"
+                      >
+                        Confirm Interview
+                      </button>
+                    </form>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -337,7 +466,7 @@ const Page = () => {
             <FiUser className="text-4xl text-teal-500" />
           </div>
           <h3 className="text-xl font-semibold text-gray-700 mb-2">
-            No applications yet
+            No applications found
           </h3>
           <p className="text-gray-500">
             {searchTerm || statusFilter !== "all"
@@ -349,8 +478,14 @@ const Page = () => {
 
       {/* Application Details Modal */}
       {showDetailsModal && selectedApplication && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideIn">
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowDetailsModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideIn"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
             <div className="sticky top-0 bg-gradient-to-r from-teal-600 to-teal-500 p-6 text-white">
               <div className="flex items-center justify-between">
@@ -372,7 +507,7 @@ const Page = () => {
                   <FiUser className="text-teal-500" />
                   Personal Information
                 </h3>
-                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
                   <div>
                     <p className="text-sm text-gray-500">Full Name</p>
                     <p className="font-medium text-gray-800">
@@ -400,7 +535,7 @@ const Page = () => {
                   <FiBriefcase className="text-teal-500" />
                   Professional Details
                 </h3>
-                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
                   <div>
                     <p className="text-sm text-gray-500">Current Salary</p>
                     <p className="font-medium text-gray-800">
@@ -416,13 +551,23 @@ const Page = () => {
                   <div>
                     <p className="text-sm text-gray-500">Notice Period</p>
                     <p className="font-medium text-gray-800">
-                      {selectedApplication.noticePeriod || "Immediate"}
+                      {selectedApplication.noticePeriod
+                        ? `${selectedApplication.noticePeriod} days`
+                        : "Immediate"}
                     </p>
                   </div>
+                  {selectedApplication.experience && (
+                    <div>
+                      <p className="text-sm text-gray-500">Experience</p>
+                      <p className="font-medium text-gray-800">
+                        {selectedApplication.experience} years
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Skills & Experience */}
+              {/* Skills */}
               {selectedApplication.skills && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -489,7 +634,7 @@ const Page = () => {
                   Timeline
                 </h3>
                 <div className="bg-gray-50 p-4 rounded-xl">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                       <p className="text-sm text-gray-500">Applied On</p>
                       <p className="font-medium text-gray-800">
@@ -502,10 +647,10 @@ const Page = () => {
                         })}
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <p className="text-sm text-gray-500">Current Status</p>
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedApplication.status)}`}
+                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedApplication.status)}`}
                       >
                         {selectedApplication.status || "Pending"}
                       </span>
@@ -517,38 +662,39 @@ const Page = () => {
 
             {/* Modal Footer */}
             <div className="sticky bottom-0 bg-gray-50 p-6 border-t border-gray-200">
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col sm:flex-row justify-end gap-3">
                 <button
                   onClick={() => setShowDetailsModal(false)}
                   className="px-6 py-2 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-100 transition-colors"
                 >
                   Close
                 </button>
-                <button
-                  onClick={async () => {
-                    try {
-                      await api.put(
-                        `/api/appliedJob/updateStatus/${selectedApplication._id}`,
-                        { status: "shortlisted" },
-                        { withCredentials: true },
-                      );
+                {selectedApplication.status !== "shortlisted" &&
+                  selectedApplication.status !== "hired" && (
+                    <button
+                      onClick={async () => {
+                        await updateApplicationStatus(
+                          selectedApplication._id,
+                          "shortlisted",
+                        );
+                        setShowDetailsModal(false);
+                      }}
+                      className="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all duration-300"
+                    >
+                      Shortlist Candidate
+                    </button>
+                  )}
+                {selectedApplication.status === "shortlisted" && (
+                  <button
+                    onClick={() => {
                       setShowDetailsModal(false);
-                      // Refresh data
-                      const response = await api.get(
-                        `/api/appliedJob/getJobById/${jobId}`,
-                        { withCredentials: true },
-                      );
-                      if (response.data.success) {
-                        setApplicationData(response.data.data);
-                      }
-                    } catch (error) {
-                      console.log("Error updating status", error);
-                    }
-                  }}
-                  className="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all duration-300"
-                >
-                  Shortlist Candidate
-                </button>
+                      setScheduleInterviewFor(selectedApplication._id);
+                    }}
+                    className="px-6 py-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-300"
+                  >
+                    Schedule Interview
+                  </button>
+                )}
               </div>
             </div>
           </div>

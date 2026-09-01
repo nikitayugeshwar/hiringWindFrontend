@@ -42,13 +42,13 @@ const Navbar = () => {
 
             <div className="flex items-center space-x-4 ml-4">
               <Link
-                href="/student"
+                href="/login"
                 className="px-5 py-2 text-pink-500 border border-pink-500 rounded-lg hover:bg-pink-500 hover:text-white transition-all duration-300"
               >
                 Student
               </Link>
               <Link
-                href="/company"
+                href="/company/login"
                 className="px-5 py-2 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-lg hover:from-pink-700 hover:to-pink-500 transition-all duration-300 shadow-lg shadow-pink-500/25"
               >
                 Company
@@ -67,8 +67,8 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden transition-all duration-300 overflow-hidden ${
-            isOpen ? "max-h-96 mt-4" : "max-h-0"
+          className={`md:hidden transition-all duration-300 overflow-y-auto custom-scrollbar ${
+            isOpen ? "max-h-[70vh] mt-4" : "max-h-0"
           }`}
         >
           <div className="flex flex-col space-y-3 py-4 border-t border-pink-500/20">
@@ -93,14 +93,14 @@ const Navbar = () => {
 
             <div className="flex flex-col space-y-2 pt-2">
               <Link
-                href="/student"
+                href="/login"
                 className="text-center px-4 py-2 text-pink-500 border border-pink-500 rounded-lg hover:bg-pink-500 hover:text-white transition-all duration-300"
                 onClick={() => setIsOpen(false)}
               >
                 Student Login
               </Link>
               <Link
-                href="/company"
+                href="/company/login"
                 className="text-center px-4 py-2 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-lg hover:from-pink-700 hover:to-pink-500 transition-all duration-300"
                 onClick={() => setIsOpen(false)}
               >

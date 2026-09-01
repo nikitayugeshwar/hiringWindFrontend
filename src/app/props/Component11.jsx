@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios";
+import api from "@/utils/api";
 import React, { useState } from "react";
 
 const Component11 = ({ AddKarnahai11, isNumber }) => {
@@ -7,9 +7,7 @@ const Component11 = ({ AddKarnahai11, isNumber }) => {
 
   const questionCount = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/api/interview/getCount",
-      );
+      const response = await api.get("/api/interview/getCount");
       if (response.data.success) {
         AddKarnahai11(response.data.data);
         alert(response.data.data);

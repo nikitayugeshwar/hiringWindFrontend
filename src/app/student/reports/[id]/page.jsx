@@ -1,6 +1,5 @@
 // student/reports/[id]/page.js
 "use client";
-import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -77,6 +76,12 @@ const Page = () => {
   const correctAnswers =
     reportData?.questions?.filter((q) => (q.accuracy || 0) >= 70).length || 0;
 
+  const accuracies = (reportData?.questions || []).map((q) => q.accuracy || 0);
+  const bestScore = accuracies.length ? Math.max(...accuracies) : 0;
+  const worstScore = accuracies.length ? Math.min(...accuracies) : 0;
+  const answered =
+    reportData?.questions?.filter((q) => q.userAnswer).length || 0;
+
   if (loading) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
@@ -116,7 +121,10 @@ const Page = () => {
             </p>
           </div>
 
-          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium hover:shadow-2xl hover:shadow-pink-500/25 transition-all group">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium hover:shadow-2xl hover:shadow-pink-500/25 transition-all group"
+          >
             <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
             Export Report
           </button>
@@ -127,7 +135,7 @@ const Page = () => {
           <SummaryCard
             icon={<Brain className="w-5 h-5" />}
             label="Technology"
-            value={reportData?.technology || "N/A"}
+            value={reportData?.technology || "General"}
             gradient="from-pink-500 to-pink-600"
           />
           <SummaryCard
@@ -140,7 +148,9 @@ const Page = () => {
           <SummaryCard
             icon={<BarChart3 className="w-5 h-5" />}
             label="Total Questions"
-            value={reportData?.questionsNumber || 0}
+            value={
+              reportData?.questions?.length || reportData?.questionsNumber || 0
+            }
             gradient="from-pink-600 to-purple-600"
           />
           <SummaryCard
@@ -202,27 +212,38 @@ const Page = () => {
             <div className="grid grid-cols-2 gap-4">
               <QuickStat
                 icon={<Clock className="w-4 h-4" />}
-                label="Time Spent"
-                value={reportData?.totalTime || "7:30"}
-                unit="minutes"
-              />
-              <QuickStat
-                icon={<TrendingUp className="w-4 h-4" />}
-                label="Best Topic"
-                value="React"
-                unit="85% accuracy"
-              />
-              <QuickStat
-                icon={<TrendingDown className="w-4 h-4" />}
-                label="Needs Work"
-                value="Hooks"
-                unit="45% accuracy"
+                label="Taken On"
+                value={
+                  reportData?.createdAt
+                    ? new Date(reportData.createdAt).toLocaleDateString()
+                    : "-"
+                }
+                unit={
+                  reportData?.createdAt
+                    ? new Date(reportData.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : ""
+                }
               />
               <QuickStat
                 icon={<Award className="w-4 h-4" />}
-                label="Rank"
-                value="Top 15%"
-                unit="of all tests"
+                label="Answered"
+                value={answered + "/" + (reportData?.questions?.length || 0)}
+                unit="questions attempted"
+              />
+              <QuickStat
+                icon={<TrendingUp className="w-4 h-4" />}
+                label="Best Answer"
+                value={bestScore + "%"}
+                unit="highest accuracy"
+              />
+              <QuickStat
+                icon={<TrendingDown className="w-4 h-4" />}
+                label="Weakest Answer"
+                value={worstScore + "%"}
+                unit="lowest accuracy"
               />
             </div>
           </div>
@@ -234,16 +255,29 @@ const Page = () => {
             Question Breakdown
           </h2>
 
-          {reportData?.questions?.map((report, index) => (
-            <QuestionCard
-              key={index}
-              index={index}
-              report={report}
-              getAccuracyColor={getAccuracyColor}
-              getAccuracyBg={getAccuracyBg}
-              getAccuracyGradient={getAccuracyGradient}
-            />
-          ))}
+          {reportData?.questions?.length ? (
+            reportData.questions.map((report, index) => (
+              <QuestionCard
+                key={index}
+                index={index}
+                report={report}
+                topic={reportData?.technology}
+                getAccuracyColor={getAccuracyColor}
+                getAccuracyBg={getAccuracyBg}
+                getAccuracyGradient={getAccuracyGradient}
+              />
+            ))
+          ) : (
+            <div className="text-center py-16 bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-pink-500/20">
+              <Code className="w-16 h-16 text-pink-500/30 mx-auto mb-4" />
+              <h3 className="text-xl text-white font-semibold mb-2">
+                Report not available
+              </h3>
+              <p className="text-gray-400">
+                This interview has no recorded questions
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -280,7 +314,7 @@ const SummaryCard = ({
 
 // Distribution Bar Component
 const DistributionBar = ({ label, count, total, color }) => {
-  const percentage = (count / total) * 100;
+  const percentage = total > 0 ? (count / total) * 100 : 0;
 
   const colorClasses = {
     green: "bg-green-500",
@@ -320,6 +354,7 @@ const QuickStat = ({ icon, label, value, unit }) => (
 const QuestionCard = ({
   index,
   report,
+  topic,
   getAccuracyColor,
   getAccuracyBg,
   getAccuracyGradient,
@@ -337,19 +372,20 @@ const QuestionCard = ({
           className="p-6 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                 <span className="text-sm text-gray-400">
                   Question {index + 1}
                 </span>
-                <span className="px-3 py-1 bg-pink-500/20 text-pink-500 rounded-full text-xs font-medium border border-pink-500/20">
-                  {report.topic || "General"}
+                <span className="px-3 py-1 bg-pink-500/20 text-pink-500 rounded-full text-xs font-medium border border-pink-500/20 capitalize">
+                  {topic || "General"}
                 </span>
-                <span className="px-3 py-1 bg-gray-800 text-gray-400 rounded-full text-xs font-medium flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {report.timeSpent || "2:30"}
-                </span>
+                {!report.userAnswer && (
+                  <span className="px-3 py-1 bg-gray-800 text-gray-400 rounded-full text-xs font-medium">
+                    Unanswered
+                  </span>
+                )}
               </div>
 
               <h3 className="text-lg font-semibold text-white group-hover:text-pink-500 transition-colors">

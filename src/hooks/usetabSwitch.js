@@ -6,10 +6,10 @@ export const useTabSwitch = () => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        // User switched tab or minimized browser
+        // User switched tab or minimized the browser. The count is surfaced in
+        // the interview header and session panel rather than a blocking alert,
+        // which would also interrupt the recording.
         setViolations((prev) => prev + 1);
-        alert("Warning: Switching tabs is not allowed!");
-        // Add logic to pause exam here
       }
     };
 

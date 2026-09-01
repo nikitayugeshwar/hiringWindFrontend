@@ -6,14 +6,16 @@ const QuestionCard = ({
   currentIndex,
   totalQuestions,
   question,
-  topic = "React",
+  topic,
 }) => {
-  const progress = ((currentIndex + 1) / totalQuestions) * 100;
+  const progress = totalQuestions
+    ? ((currentIndex + 1) / totalQuestions) * 100
+    : 0;
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-pink-500/20 p-6">
+    <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-pink-500/20 p-5 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 flex items-center justify-center font-bold text-white">
             {currentIndex + 1}
@@ -26,15 +28,17 @@ const QuestionCard = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Tag className="w-4 h-4 text-pink-500" />
-          <span className="text-sm text-gray-300">{topic}</span>
-        </div>
+        {topic && (
+          <div className="flex items-center gap-2">
+            <Tag className="w-4 h-4 text-pink-500" />
+            <span className="text-sm text-gray-300 capitalize">{topic}</span>
+          </div>
+        )}
       </div>
 
       {/* Question */}
       <div className="mt-4">
-        <h2 className="text-xl font-semibold text-white mb-3">
+        <h2 className="text-lg sm:text-xl font-semibold text-white mb-3">
           {question || "Loading question..."}
         </h2>
         <p className="text-gray-400 text-sm leading-relaxed">

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   detectFaceInFrame,
   drawFaceDetectionOverlay,
@@ -10,44 +10,43 @@ export const useFaceDetection = (videoRef, isWebcamActive) => {
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
 
-  const detectFace = useCallback(() => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
+  useEffect(() => {
+    if (!isWebcamActive) return;
 
-    if (!video || !canvas || video.videoWidth === 0 || !isWebcamActive) {
+    // The loop lives inside the effect so each frame schedules the same
+    // function without the callback having to reference itself.
+    const detectFace = () => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+
+      if (video && canvas && video.videoWidth > 0) {
+        const result = detectFaceInFrame(video, canvas);
+
+        setIsFaceInFrame(result.isFaceDetected);
+        setFaceWarning(!result.isFaceDetected);
+
+        if (result.ctx) {
+          drawFaceDetectionOverlay(
+            result.ctx,
+            result.centerX,
+            result.centerY,
+            result.sampleSize,
+            result.isFaceDetected,
+          );
+        }
+      }
+
       animationFrameRef.current = requestAnimationFrame(detectFace);
-      return;
-    }
-
-    const result = detectFaceInFrame(video, canvas);
-
-    setIsFaceInFrame(result.isFaceDetected);
-    setFaceWarning(!result.isFaceDetected);
-
-    if (result.ctx) {
-      drawFaceDetectionOverlay(
-        result.ctx,
-        result.centerX,
-        result.centerY,
-        result.sampleSize,
-        result.isFaceDetected,
-      );
-    }
+    };
 
     animationFrameRef.current = requestAnimationFrame(detectFace);
-  }, [videoRef, isWebcamActive]);
-
-  useEffect(() => {
-    if (isWebcamActive) {
-      animationFrameRef.current = requestAnimationFrame(detectFace);
-    }
 
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isWebcamActive, detectFace]);
+  }, [isWebcamActive, videoRef]);
 
   return {
     canvasRef,

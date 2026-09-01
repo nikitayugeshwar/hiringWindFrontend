@@ -1,92 +1,69 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import axios from "axios";
 import api from "@/utils/api";
+import React, { useEffect, useState } from "react";
 
-const page = () => {
-  const student = [
-    {
-      id: 1,
-      name: "nikita",
-      age: "28",
-    },
-    {
-      id: 2,
-      name: "Aman",
-      age: "18",
-    },
-    {
-      id: 3,
-      name: "Jhon",
-      age: "12",
-    },
-    {
-      id: 4,
-      name: "Jhony",
-      age: "75",
-    },
-
-    {
-      id: 5,
-      name: "bean",
-      age: "52",
-    },
-
-    {
-      id: 6,
-      name: "cat",
-      age: "30",
-    },
-  ];
+const Page = () => {
+  const [job, setJob] = useState([]);
   const [search, setSearch] = useState("");
-  const [interviewData, setInterviewData] = useState([]);
+  // useEffect(() => {
+  //   const fetchedAllJob = async () => {
+  //     try {
+  //       const response = await api.get(
+  //         "/api/job/getAllJob",
+  //         { withCredentials: true },
+  //       );
+  //       console.log("response", response);
+  //       if (response.data.success) {
+  //         setJob(response.data.data);
+  //       }
+  //     } catch (error) {
+  //       console.log("error while getting all jobs", error);
+  //     }
+  //   };
+  //   fetchedAllJob();
+  // }, []);
 
-  useEffect(() => {
-    const fetchedinterview = async () => {
-      try {
-        const response = await api.get(`/api/interview/getInterview`);
-        if (response.data.success) {
-          //   alert(response.data.message);
-          setInterviewData(response.data.data);
-        }
-      } catch (error) {
-        console.log("error while getting the interview", error);
+  const handleSubmit = async () => {
+    try {
+      const response = await api.post("/api/job/searchJob", { searchType: search });
+      if (response.data.success) {
+        setJob(response.data.data);
       }
-    };
-    fetchedinterview();
-  }, []);
-
-  const filterData = interviewData.filter((item) =>
-    `${item.technology}`.toLowerCase().includes(search.toLowerCase()),
-  );
+    } catch (error) {
+      console.log("error while search", search);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center mt-10 gap-5">
+    <div className="w-full bg-red-100 p-5 flex flex-col">
       <div>
         <input
           type="text"
-          placeholder="search input"
           onChange={(e) => setSearch(e.target.value)}
-          className="border-2 border-black px-5 py-2"
+          className="h-15 border border-gray-300 rounded-2xl p-2"
         />
-      </div>
-      <div className="w-full flex flex-row gap-2">
-        {filterData.map((item, index) => {
-          return (
-            <div
-              key={index}
-              className="h-56 w-56 border border-black rounded-2xl flex flex-col gap-2 items-center justify-center bg-red-100"
-            >
-              <h1>{item.technology}</h1>
-              <h1>{item._id}</h1>
-              <h1>{item.experience}</h1>
-              <h1>{item.questionsNumber}</h1>
-            </div>
-          );
-        })}
+        <button
+          className="h-12 p-5 border border-gray-400 cursor-pointer flex items-center justify-center rounded-2xl "
+          onClick={handleSubmit}
+        >
+          submit
+        </button>
+
+        <div>
+          {job.map((item, index) => {
+            return (
+              <>
+                <div key={index} className="flex flex-row gap-5">
+                  <h1>{item.jobTitle}</h1>
+                  <h1>{item.companyName}</h1>
+                </div>
+              </>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 };
 
-export default page;
+export default Page;

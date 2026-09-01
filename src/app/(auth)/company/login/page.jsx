@@ -1,7 +1,16 @@
 "use client";
-import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  FiMail,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiLogIn,
+  FiAlertCircle,
+  FiInfo,
+} from "react-icons/fi";
 import api from "@/utils/api";
 
 export default function LoginPage() {
@@ -9,6 +18,9 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -17,162 +29,172 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
+    setError("");
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
     try {
+      setLoading(true);
       const response = await api.post(`/api/company/login`, comapanyData, {
         withCredentials: true,
       });
-      // console.log("response", response);
+
       if (response.data.success) {
         router.push("/company");
-        alert(response.data.message);
       }
     } catch (error) {
-      if (error.response && error.response.data.message) {
-        alert(error.response.data.message); // 👈 this shows backend message
-      } else {
-        alert("Something went wrong");
-      }
+      setError(
+        error.response?.data?.message ||
+          "Could not sign you in. Please try again.",
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        {/* Main Content */}
-        <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
-            <div>
-              <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Welcome back
-              </h2>
-              <p className="mt-2 text-center text-sm text-gray-600">
-                Dont have an account?{" "}
-                <a
-                  href="/company/signUp"
-                  className="font-medium text-indigo-600 hover:text-indigo-500"
-                >
-                  Sign up for free
-                </a>
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        {/* Brand */}
+        <Link href="/" className="flex items-center justify-center gap-2 mb-8">
+          <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center shadow-lg shadow-teal-200">
+            <span className="text-white font-bold text-xl">HW</span>
+          </div>
+          <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
+            Hiring Wind
+          </span>
+        </Link>
+
+        <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-xl border border-gray-100">
+          <div className="mb-8">
+            <h2 className="text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
+              Welcome back
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/company/signUp"
+                className="font-medium text-teal-600 hover:text-teal-500"
+              >
+                Sign up for free
+              </Link>
+            </p>
+          </div>
+
+          {/* Login Form */}
+          <form className="space-y-5" onSubmit={handleLogin}>
+            {/* Email */}
+            <div className="group">
+              <label
+                htmlFor="email-address"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Email address
+              </label>
+              <div className="relative">
+                <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+                <input
+                  id="email-address"
+                  name="email"
+                  value={comapanyData.email}
+                  onChange={handleChange}
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
+                  placeholder="company@example.com"
+                />
+              </div>
             </div>
 
-            {/* Login Form */}
-            <form className="mt-8 space-y-6">
-              <div className="space-y-4">
-                {/* Email */}
-                <div>
-                  <label
-                    htmlFor="email-address"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Email address
-                  </label>
-                  <input
-                    id="email-address"
-                    name="email"
-                    onChange={handleChange}
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="company@example.com"
-                  />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    onChange={handleChange}
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="••••••••"
-                  />
-                </div>
-
-                {/* Remember me & Forgot password */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      name="rememberMe"
-                      type="checkbox"
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                    />
-                    <label
-                      htmlFor="remember-me"
-                      className="ml-2 block text-sm text-gray-900"
-                    >
-                      Remember me
-                    </label>
-                  </div>
-
-                  <div className="text-sm">
-                    <a
-                      href="/company/forgotPass"
-                      className="font-medium text-indigo-600 hover:text-indigo-500"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
-                </div>
-
-                {/* Company Account Note */}
-                <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg
-                        className="h-5 w-5 text-blue-400"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-blue-700">
-                        This login is for{" "}
-                        <span className="font-semibold">
-                          company accounts only
-                        </span>
-                        . Job seekers please use the candidate portal.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div>
+            {/* Password */}
+            <div className="group">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <FiLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+                <input
+                  id="password"
+                  name="password"
+                  value={comapanyData.password}
+                  onChange={handleChange}
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  className="w-full pl-12 pr-12 py-3 border border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all duration-300"
+                  placeholder="••••••••"
+                />
                 <button
-                  onClick={handleLogin}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-teal-600 transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  Sign in to your account
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                 </button>
               </div>
-            </form>
-          </div>
+            </div>
+
+            {/* Forgot password */}
+            <div className="flex justify-end">
+              <Link
+                href="/company/forgotPass"
+                className="text-sm font-medium text-teal-600 hover:text-teal-500"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+
+            {/* Company Account Note */}
+            <div className="bg-teal-50 border-l-4 border-teal-400 p-4 rounded-r-xl">
+              <div className="flex gap-3">
+                <FiInfo className="h-5 w-5 text-teal-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-teal-800">
+                  This login is for{" "}
+                  <span className="font-semibold">company accounts only</span>.
+                  Job seekers should use the{" "}
+                  <Link href="/login" className="underline font-medium">
+                    candidate portal
+                  </Link>
+                  .
+                </p>
+              </div>
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <FiAlertCircle className="text-red-500 text-lg shrink-0" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 shadow-lg shadow-teal-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <FiLogIn size={18} />
+                  <span>Sign in to your account</span>
+                </>
+              )}
+            </button>
+          </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }

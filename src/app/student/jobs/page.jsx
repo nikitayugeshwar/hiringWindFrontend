@@ -52,9 +52,10 @@ const Page = () => {
     if (searchTerm) {
       filtered = filtered.filter(
         (job) =>
-          job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.location?.toLowerCase().includes(searchTerm.toLowerCase()),
+          job.jobTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.skills?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -243,6 +244,20 @@ const JobCard = ({ job, onApply }) => {
     return [];
   }, [job.skills]);
 
+  const getStatusColor = (status) => {
+    const colors = {
+      pending: "bg-yellow-500/20 text-yellow-500 border border-yellow-500/20",
+      reviewed: "bg-blue-500/20 text-blue-500 border border-blue-500/20",
+      shortlisted: "bg-green-500/20 text-green-500 border border-green-500/20",
+      rejected: "bg-red-500/20 text-red-500 border border-red-500/20",
+      hired: "bg-purple-500/20 text-purple-500 border border-purple-500/20",
+    };
+    return (
+      colors[status?.toLowerCase()] ||
+      "bg-gray-500/20 text-gray-400 border border-gray-500/20"
+    );
+  };
+
   // Safely handle job type with default
   const getJobTypeColor = (type) => {
     const jobType = type || "Full-time";
@@ -277,7 +292,7 @@ const JobCard = ({ job, onApply }) => {
                 <div className="flex items-center gap-2 mt-1">
                   <Building2 className="w-4 h-4 text-pink-500" />
                   <p className="text-sm text-gray-400">
-                    {job.company || "Tech Company"} •{" "}
+                    {job.companyName || "Tech Company"} •{" "}
                     {job.location || "Location not specified"}
                   </p>
                 </div>
@@ -309,8 +324,8 @@ const JobCard = ({ job, onApply }) => {
                 <Clock className="w-4 h-4 text-pink-500" />
                 <span>
                   Posted{" "}
-                  {job.postedAt
-                    ? new Date(job.postedAt).toLocaleDateString()
+                  {job.createdAt
+                    ? new Date(job.createdAt).toLocaleDateString()
                     : "recently"}
                 </span>
               </div>
@@ -337,20 +352,24 @@ const JobCard = ({ job, onApply }) => {
           </div>
 
           {/* Right Section - CTA */}
-          <div className="lg:text-right flex flex-row lg:flex-col items-center lg:items-end gap-4 lg:gap-2">
-            <div className="text-sm text-gray-400 mb-2 hidden lg:block">
+          <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-start gap-4 lg:gap-2 lg:text-right shrink-0">
+            <div className="text-sm text-gray-400 lg:mb-2">
               <span className="text-pink-500 font-semibold">
-                {job.applicants || 0}+
+                {job.applicants || 0}
               </span>{" "}
-              applicants
+              {job.applicants === 1 ? "applicant" : "applicants"}
             </div>
 
-            {job.status === "Applied" ? (
-              <span className=" text-white px-8 py-3">Applied</span>
+            {job.hasApplied ? (
+              <span
+                className={`px-4 py-2 rounded-xl text-sm font-medium capitalize whitespace-nowrap ${getStatusColor(job.status)}`}
+              >
+                {job.status}
+              </span>
             ) : (
               <button
                 onClick={onApply}
-                className="relative group/btn px-8 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/25"
+                className="relative group/btn w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/25 whitespace-nowrap"
               >
                 <span className="relative z-10">Apply Now</span>
 

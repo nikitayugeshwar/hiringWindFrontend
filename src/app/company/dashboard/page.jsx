@@ -1,7 +1,8 @@
-import React from "react";
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return <div>page</div>;
+// The dashboard lives at /company; this path only ever held a placeholder.
+const Page = () => {
+  redirect("/company");
 };
 
-export default page;
+export default Page;

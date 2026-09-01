@@ -1,6 +1,5 @@
 // student/jobs/_components/ApplyCard.js
 "use client";
-import axios from "axios";
 import React, { useState } from "react";
 import {
   X,
@@ -103,14 +102,16 @@ const ApplyCard = ({ onClose, jobId, setStatus }) => {
 
       if (response.data.success) {
         setStatus((prev) => prev + 1);
-        // Show success message
-        alert("Application submitted successfully!");
-
         onClose();
       }
     } catch (error) {
       console.log("error while job apply", error);
-      alert("Failed to submit application. Please try again.");
+      setErrors((prev) => ({
+        ...prev,
+        submit:
+          error.response?.data?.message ||
+          "Failed to submit application. Please try again.",
+      }));
     } finally {
       setLoading(false);
     }
@@ -289,6 +290,13 @@ const ApplyCard = ({ onClose, jobId, setStatus }) => {
                 )}
               </div>
             </div>
+
+            {errors.submit && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {errors.submit}
+              </div>
+            )}
 
             {/* Submit Button */}
             <button

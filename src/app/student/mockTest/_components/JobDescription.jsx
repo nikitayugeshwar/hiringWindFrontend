@@ -1,6 +1,6 @@
 // student/mockTest/_components/JobDescription.js
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Code2,
   Briefcase,
@@ -14,29 +14,17 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
-import axios from "axios";
-import { useUser } from "@/hooks/useUser";
 import api from "@/utils/api";
 
 const JobDescription = ({ setStepCount, questionIdSetKar }) => {
-  const { userData } = useUser();
   const [formData, setFormData] = useState({
     technology: "",
     experience: "",
     questionsNumber: "",
-    userId: "",
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (userData?._id) {
-      setFormData((prev) => ({
-        ...prev,
-        userId: userData._id,
-      }));
-    }
-  }, [userData]);
+  const [submitError, setSubmitError] = useState("");
 
   const technologies = [
     {
@@ -154,6 +142,7 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
 
     try {
       setLoading(true);
+      setSubmitError("");
       const response = await api.post(`/api/interview/create`, formData);
 
       if (response.data.success) {
@@ -162,6 +151,10 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
       }
     } catch (error) {
       console.log("error while submit the data", error);
+      setSubmitError(
+        error.response?.data?.message ||
+          "Could not start the interview. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -440,6 +433,13 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
                 />
               </div>
 
+              {submitError && (
+                <div className="flex items-center gap-2 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+                  <Shield className="w-4 h-4 shrink-0" />
+                  {submitError}
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <button
@@ -465,9 +465,18 @@ const JobDescription = ({ setStepCount, questionIdSetKar }) => {
 
                 <button
                   type="button"
+                  onClick={() => {
+                    setFormData({
+                      technology: "",
+                      experience: "",
+                      questionsNumber: "",
+                    });
+                    setErrors({});
+                    setSubmitError("");
+                  }}
                   className="px-8 py-4 border-2 border-pink-500/20 bg-black/50 text-white font-semibold rounded-xl hover:bg-pink-500/10 transition-all duration-300"
                 >
-                  Save Configuration
+                  Reset
                 </button>
               </div>
             </form>

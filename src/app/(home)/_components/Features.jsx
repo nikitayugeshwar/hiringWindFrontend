@@ -48,7 +48,7 @@ const Features = () => {
   ];
 
   return (
-    <div id="features" className="relative bg-black py-20">
+    <div id="features" className="relative bg-black py-20 scroll-mt-24">
       <div className="absolute inset-0 bg-gradient-to-b from-pink-500/5 via-transparent to-purple-500/5"></div>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">

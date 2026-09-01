@@ -1,6 +1,5 @@
-// student/mockTest/page.js
+// student/reports/page.js
 "use client";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
   Code,
@@ -40,12 +39,21 @@ const Page = () => {
     fetchedInterview();
   }, []);
 
+  // Only interviews that were actually attempted should drag the average.
+  const attempted = interviewData.filter((item) => item.answered > 0);
+  const avgScore = attempted.length
+    ? Math.round(
+        attempted.reduce((sum, item) => sum + (item.score || 0), 0) /
+          attempted.length,
+      )
+    : 0;
+
   const getStatusColor = (status) => {
     const colors = {
       Completed: "bg-green-500/20 text-green-500 border border-green-500/20",
       "In Progress":
         "bg-yellow-500/20 text-yellow-500 border border-yellow-500/20",
-      Scheduled: "bg-blue-500/20 text-blue-500 border border-blue-500/20",
+      "Not started": "bg-gray-500/20 text-gray-400 border border-gray-500/20",
     };
     return (
       colors[status] || "bg-pink-500/20 text-pink-500 border border-pink-500/20"
@@ -93,7 +101,7 @@ const Page = () => {
           <StatCard
             icon={<Calendar className="w-5 h-5" />}
             label="Avg. Score"
-            value="85%"
+            value={`${avgScore}%`}
             gradient="from-purple-600 to-pink-500"
           />
         </div>
@@ -116,7 +124,7 @@ const Page = () => {
             <p className="text-gray-400">
               Start your first mock interview to see results here
             </p>
-            <Link href="/student/mockTest/new">
+            <Link href="/student/mockTest">
               <button className="mt-6 px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-400 text-white rounded-xl font-medium hover:shadow-2xl hover:shadow-pink-500/25 transition-all">
                 Start Interview
               </button>
@@ -150,7 +158,7 @@ const Page = () => {
                     <span
                       className={`text-xs px-3 py-1 rounded-full ${getStatusColor(interview.status)}`}
                     >
-                      {interview.status || "In Progress"}
+                      {interview.status || "Not started"}
                     </span>
                   </div>
 
@@ -166,28 +174,36 @@ const Page = () => {
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <Calendar className="w-4 h-4 text-pink-500" />
                       <span>
-                        {interview.date || new Date().toLocaleDateString()}
+                        {interview.createdAt
+                          ? new Date(interview.createdAt).toLocaleDateString()
+                          : "—"}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <Clock className="w-4 h-4 text-pink-500" />
-                      <span>{interview.questionsNumber || 0} Questions</span>
+                      <span>
+                        {interview.answered || 0}/
+                        {interview.questions?.length ||
+                          interview.questionsNumber ||
+                          0}{" "}
+                        answered
+                      </span>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
-                  {interview.status === "Completed" && (
+                  {interview.answered > 0 && (
                     <div className="mt-4">
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-gray-400">Score</span>
                         <span className="text-pink-500">
-                          {interview.score || 75}%
+                          {interview.score}%
                         </span>
                       </div>
                       <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"
-                          style={{ width: `${interview.score || 75}%` }}
+                          style={{ width: `${interview.score}%` }}
                         ></div>
                       </div>
                     </div>

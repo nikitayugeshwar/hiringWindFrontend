@@ -43,6 +43,7 @@ const Page = () => {
     e.preventDefault();
     try {
       const response = await api.post(`/api/user/resetPassword`, {
+        email: userData.email,
         otp: userData.otp,
         password: userData.password,
       });
